@@ -1,9 +1,5 @@
 module equip::equip;
 
-use std::option;
-use std::vector;
-use sui::object;
-
 const IRON_HELMET: u64 = 0;
 const DRAGON_SCALE_HELMET: u64 = 1;
 const LEATHER_ARMOR: u64 = 2;
@@ -58,17 +54,7 @@ public fun create_character(ctx: &mut TxContext): Character {
 
 public fun create_starter_items(
     ctx: &mut TxContext,
-): (
-    equip::equip::Item,
-    equip::equip::Item,
-    equip::equip::Item,
-    equip::equip::Item,
-    equip::equip::Item,
-    equip::equip::Item,
-    equip::equip::Item,
-    equip::equip::Item,
-    equip::equip::Item,
-) {
+): (Item, Item, Item, Item, Item, Item, Item, Item, Item) {
     // Iron Helmet
     let iron_helmet = Item {
         id: object::new(ctx),

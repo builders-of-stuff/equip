@@ -41,15 +41,15 @@ export const mintCharacterAndItems = async (walletAdapter: any) => {
     arguments: []
   });
 
-  // Create starter items
-  const [items] = tx.moveCall({
+  // Create starter items - destructure the tuple of 9 items
+  const [item1, item2, item3, item4, item5, item6, item7, item8, item9] = tx.moveCall({
     target: CONTRACT_FUNCTIONS.CREATE_STARTER_ITEMS,
     arguments: []
   });
 
   // Transfer character and items to user
   tx.transferObjects([character], walletAdapter.currentAccount.address);
-  tx.transferObjects([items], walletAdapter.currentAccount.address);
+  tx.transferObjects([item1, item2, item3, item4, item5, item6, item7, item8, item9], walletAdapter.currentAccount.address);
 
   try {
     const { bytes, signature } = await walletAdapter.signTransaction(tx as any, {});
