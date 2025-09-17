@@ -46,10 +46,12 @@ This is a SvelteKit application with the following key characteristics:
 ## Testing Structure
 
 The project uses a dual testing setup:
+
 - **Client-side tests**: Run in browser environment using Playwright, test Svelte components with `vitest-browser-svelte`
 - **Server-side tests**: Run in Node environment for server code
 
 Test files follow these patterns:
+
 - Svelte component tests: `*.svelte.{test,spec}.{js,ts}`
 - Server/utility tests: `*.{test,spec}.{js,ts}` (excluding Svelte tests)
 

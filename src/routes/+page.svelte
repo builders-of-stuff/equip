@@ -1,2 +1,9 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
+<!-- +page.svelte -->
+<script lang="ts">
+  import {
+    ConnectButton,
+    testnetWalletAdapter as walletAdapter
+  } from '@builders-of-stuff/svelte-sui-wallet-adapter';
+</script>
+
+<ConnectButton {walletAdapter} />
