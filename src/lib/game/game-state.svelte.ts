@@ -25,6 +25,8 @@ import {
   ITEM_SHIELD_OF_VALOR,
   ITEM_ARCANE_BRACERS
 } from './constants.js';
+import type { SuiCharacter, SuiItem } from '../contracts/contract-tools.js';
+import { suiItemToItem, suiItemsToItems } from '../contracts/utils.js';
 
 export interface EquippedItems {
   helmet?: Item;
@@ -44,8 +46,21 @@ export class GameState {
   });
   #items = $state<Item[]>([]);
 
-  constructor() {
-    this.initializeStarterItems();
+  // Blockchain-related state
+  #characterId = $state<string | null>(null);
+  #isLoadingCharacter = $state<boolean>(false);
+  #isLoadingItems = $state<boolean>(false);
+  #isSavingChanges = $state<boolean>(false);
+  #isMinting = $state<boolean>(false);
+  #isDeleting = $state<boolean>(false);
+  #hasUnsavedChanges = $state<boolean>(false);
+  #useBlockchainData = $state<boolean>(false);
+
+  constructor(useBlockchainData = false) {
+    this.#useBlockchainData = useBlockchainData;
+    if (!useBlockchainData) {
+      this.initializeStarterItems();
+    }
   }
 
   get equipped(): EquippedItems {
@@ -59,7 +74,7 @@ export class GameState {
   get totalStats(): ItemStats {
     const total = { ...this.#baseStats };
 
-    Object.values(this.#equipped).forEach(item => {
+    Object.values(this.#equipped).forEach((item) => {
       if (item) {
         total.attack = (total.attack || 0) + (item.stats.attack || 0);
         total.defense = (total.defense || 0) + (item.stats.defense || 0);
@@ -77,6 +92,53 @@ export class GameState {
 
   get inventorySize(): number {
     return this.#items.length;
+  }
+
+  // Blockchain-related getters
+  get characterId(): string | null {
+    return this.#characterId;
+  }
+
+  get hasCharacter(): boolean {
+    return this.#characterId !== null;
+  }
+
+  get isLoadingCharacter(): boolean {
+    return this.#isLoadingCharacter;
+  }
+
+  get isLoadingItems(): boolean {
+    return this.#isLoadingItems;
+  }
+
+  get isSavingChanges(): boolean {
+    return this.#isSavingChanges;
+  }
+
+  get isMinting(): boolean {
+    return this.#isMinting;
+  }
+
+  get isDeleting(): boolean {
+    return this.#isDeleting;
+  }
+
+  get hasUnsavedChanges(): boolean {
+    return this.#hasUnsavedChanges;
+  }
+
+  get useBlockchainData(): boolean {
+    return this.#useBlockchainData;
+  }
+
+  get isLoading(): boolean {
+    return (
+      this.#isLoadingCharacter ||
+      this.#isLoadingItems ||
+      this.#isSavingChanges ||
+      this.#isMinting ||
+      this.#isDeleting
+    );
   }
 
   equipItem(item: Item): Item | null {
@@ -154,6 +216,10 @@ export class GameState {
       this.addItem(previousItem);
     }
 
+    if (this.#useBlockchainData) {
+      this.#hasUnsavedChanges = true;
+    }
+
     return true;
   }
 
@@ -162,6 +228,11 @@ export class GameState {
     if (!item) return false;
 
     this.addItem(item);
+
+    if (this.#useBlockchainData) {
+      this.#hasUnsavedChanges = true;
+    }
+
     return true;
   }
 
@@ -267,6 +338,112 @@ export class GameState {
       )
     ];
 
-    starterItems.forEach(item => this.addItem(item));
+    starterItems.forEach((item) => this.addItem(item));
+  }
+
+  // Blockchain-related methods
+
+  /**
+   * Load character data from blockchain
+   */
+  loadCharacterFromBlockchain(character: SuiCharacter | null): void {
+    if (!character) {
+      this.#characterId = null;
+      this.#equipped = {};
+      return;
+    }
+
+    this.#characterId = character.objectId;
+    this.#equipped = {
+      helmet: character.helmet ? suiItemToItem(character.helmet) : undefined,
+      armor: character.armor ? suiItemToItem(character.armor) : undefined,
+      right_arm: character.right_arm ? suiItemToItem(character.right_arm) : undefined,
+      left_arm: character.left_arm ? suiItemToItem(character.left_arm) : undefined,
+      legs: character.legs ? suiItemToItem(character.legs) : undefined
+    };
+    this.#hasUnsavedChanges = false;
+  }
+
+  /**
+   * Load items from blockchain
+   */
+  loadItemsFromBlockchain(items: SuiItem[]): void {
+    this.#items = suiItemsToItems(items);
+  }
+
+  /**
+   * Enable blockchain mode
+   */
+  enableBlockchainMode(): void {
+    this.#useBlockchainData = true;
+    // Clear mock data
+    this.#items = [];
+    this.#equipped = {};
+    this.#characterId = null;
+  }
+
+  /**
+   * Disable blockchain mode (for development/testing)
+   */
+  disableBlockchainMode(): void {
+    this.#useBlockchainData = false;
+    this.#characterId = null;
+    this.#hasUnsavedChanges = false;
+    this.#equipped = {};
+    this.#items = [];
+    this.initializeStarterItems();
+  }
+
+  /**
+   * Set loading states
+   */
+  setLoadingCharacter(loading: boolean): void {
+    this.#isLoadingCharacter = loading;
+  }
+
+  setLoadingItems(loading: boolean): void {
+    this.#isLoadingItems = loading;
+  }
+
+  setSavingChanges(saving: boolean): void {
+    this.#isSavingChanges = saving;
+  }
+
+  setMinting(minting: boolean): void {
+    this.#isMinting = minting;
+  }
+
+  setDeleting(deleting: boolean): void {
+    this.#isDeleting = deleting;
+  }
+
+  /**
+   * Mark changes as saved
+   */
+  markChangesSaved(): void {
+    this.#hasUnsavedChanges = false;
+  }
+
+  /**
+   * Get equipped items as array for blockchain operations
+   */
+  getEquippedItemIds(): string[] {
+    const equippedIds: string[] = [];
+    Object.values(this.#equipped).forEach((item) => {
+      if (item) {
+        equippedIds.push(item.id);
+      }
+    });
+    return equippedIds;
+  }
+
+  /**
+   * Clear all data (used when deleting character)
+   */
+  clearAllData(): void {
+    this.#characterId = null;
+    this.#equipped = {};
+    this.#items = [];
+    this.#hasUnsavedChanges = false;
   }
 }

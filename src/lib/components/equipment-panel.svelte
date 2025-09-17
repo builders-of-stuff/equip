@@ -1,12 +1,17 @@
 <script lang="ts">
   import { GameState, Item, ItemSlot } from '$lib/game';
   import EquipmentSlot from './equipment-slot.svelte';
+  import { Button } from './ui/button/index.js';
+  import { testnetWalletAdapter as walletAdapter } from '@builders-of-stuff/svelte-sui-wallet-adapter';
+  import { equipCharacter } from '$lib/contracts/contract-tools.js';
+  import { Loader2, Save, Trash } from 'lucide-svelte';
 
   interface Props {
     gameState: GameState;
+    onDeleteCharacter?: () => void;
   }
 
-  let { gameState }: Props = $props();
+  let { gameState, onDeleteCharacter }: Props = $props();
 
   function handleEquipItem(item: Item) {
     gameState.equipItemFromInventory(item.id);
@@ -14,6 +19,26 @@
 
   function handleUnequipItem(itemSlot: ItemSlot) {
     gameState.unequipItemToInventory(itemSlot);
+  }
+
+  async function handleSaveChanges() {
+    if (!gameState.characterId || !walletAdapter?.currentAccount?.address) {
+      return;
+    }
+
+    try {
+      gameState.setSavingChanges(true);
+
+      const equippedItemIds = gameState.getEquippedItemIds();
+      await equipCharacter(walletAdapter, gameState.characterId, equippedItemIds);
+
+      gameState.markChangesSaved();
+    } catch (error) {
+      console.error('Failed to save changes:', error);
+      // TODO: Show error toast/notification
+    } finally {
+      gameState.setSavingChanges(false);
+    }
   }
 </script>
 
@@ -72,4 +97,43 @@
       <div class="text-purple-400">💙 Mana: {gameState.totalStats.mana}</div>
     </div>
   </div>
+
+  <!-- Blockchain Actions -->
+  {#if gameState.useBlockchainData && gameState.hasCharacter}
+    <div class="mt-6 space-y-3">
+      <!-- Save Changes Button -->
+      <Button
+        onclick={handleSaveChanges}
+        disabled={!gameState.hasUnsavedChanges || gameState.isSavingChanges}
+        class="w-full"
+        variant={gameState.hasUnsavedChanges ? 'default' : 'secondary'}
+      >
+        {#if gameState.isSavingChanges}
+          <Loader2 class="mr-2 h-4 w-4 animate-spin" />
+          Saving Changes...
+        {:else}
+          <Save class="mr-2 h-4 w-4" />
+          {gameState.hasUnsavedChanges ? 'Save Changes' : 'No Changes'}
+        {/if}
+      </Button>
+
+      <!-- Delete Character Button -->
+      {#if onDeleteCharacter}
+        <Button
+          onclick={onDeleteCharacter}
+          disabled={gameState.isDeleting || gameState.isSavingChanges}
+          variant="destructive"
+          class="w-full"
+        >
+          {#if gameState.isDeleting}
+            <Loader2 class="mr-2 h-4 w-4 animate-spin" />
+            Deleting...
+          {:else}
+            <Trash class="mr-2 h-4 w-4" />
+            Delete Character
+          {/if}
+        </Button>
+      {/if}
+    </div>
+  {/if}
 </div>
