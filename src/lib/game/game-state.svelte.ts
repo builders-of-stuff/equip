@@ -37,9 +37,7 @@ export class GameState {
   #isDeleting = $state<boolean>(false);
   #hasUnsavedChanges = $state<boolean>(false);
 
-  constructor() {
-    // Blockchain mode is always enabled
-  }
+  constructor() {}
 
   get equipped(): EquippedItems {
     return this.#equipped;
@@ -104,7 +102,6 @@ export class GameState {
   get hasUnsavedChanges(): boolean {
     return this.#hasUnsavedChanges;
   }
-
 
   get isLoading(): boolean {
     return (
@@ -224,7 +221,6 @@ export class GameState {
     }
   }
 
-
   // Blockchain-related methods
 
   /**
@@ -254,7 +250,6 @@ export class GameState {
   loadItems(items: SuiItem[]): void {
     this.#items = suiItemsToItems(items);
   }
-
 
   /**
    * Set loading states

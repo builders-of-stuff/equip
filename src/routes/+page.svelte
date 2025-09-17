@@ -15,56 +15,7 @@
   const gameState = new GameState();
   let hasCheckedInitialData = $state(false);
 
-  // Effect to fetch character and items when wallet connects or changes
-  $effect(() => {
-    if (
-      !walletAdapter.isConnected ||
-      !walletAdapter?.currentAccount?.address ||
-      hasCheckedInitialData
-    ) {
-      return;
-    }
-
-    untrack(() => {
-      (async () => {
-        try {
-          // Fetch character data
-          gameState.setLoadingCharacter(true);
-          const character = await fetchCharacter(
-            walletAdapter.suiClient,
-            walletAdapter.currentAccount!.address
-          );
-          gameState.loadCharacter(character);
-
-          // Fetch items data
-          gameState.setLoadingItems(true);
-          const items = await fetchItems(
-            walletAdapter.suiClient,
-            walletAdapter.currentAccount!.address
-          );
-          gameState.loadItems(items);
-
-          hasCheckedInitialData = true;
-        } catch (error) {
-          console.error('Failed to fetch blockchain data:', error);
-        } finally {
-          gameState.setLoadingCharacter(false);
-          gameState.setLoadingItems(false);
-        }
-      })();
-    });
-  });
-
-  // Reset data when wallet disconnects
-  $effect(() => {
-    if (!walletAdapter.isConnected) {
-      hasCheckedInitialData = false;
-      gameState.clearAllData();
-    }
-  });
-
-  async function handleMintSuccess() {
-    // Refetch character and items after successful mint
+  async function fetchAndLoadData(options: { setInitialDataFlag?: boolean } = {}) {
     if (!walletAdapter?.currentAccount?.address) return;
 
     try {
@@ -82,13 +33,40 @@
         walletAdapter.currentAccount.address
       );
       gameState.loadItems(items);
+
+      if (options.setInitialDataFlag) {
+        hasCheckedInitialData = true;
+      }
     } catch (error) {
-      console.error('Failed to refetch data after mint:', error);
+      console.error('Failed to fetch blockchain data:', error);
     } finally {
       gameState.setLoadingCharacter(false);
       gameState.setLoadingItems(false);
     }
   }
+
+  // Effect to fetch character and items when wallet connects or changes
+  $effect(() => {
+    if (
+      !walletAdapter.isConnected ||
+      !walletAdapter?.currentAccount?.address ||
+      hasCheckedInitialData
+    ) {
+      return;
+    }
+
+    untrack(() => {
+      fetchAndLoadData({ setInitialDataFlag: true });
+    });
+  });
+
+  // Reset data when wallet disconnects
+  $effect(() => {
+    if (!walletAdapter.isConnected) {
+      hasCheckedInitialData = false;
+      gameState.clearAllData();
+    }
+  });
 
   async function handleDeleteCharacter() {
     if (!gameState.characterId || !walletAdapter?.currentAccount?.address) {
@@ -125,7 +103,7 @@
   <main class="container mx-auto p-6">
     {#if !gameState.hasCharacter && !gameState.isLoadingCharacter}
       <!-- Empty State - No Character -->
-      <EmptyCharacterState {gameState} onMintSuccess={handleMintSuccess} />
+      <EmptyCharacterState {gameState} onMintSuccess={fetchAndLoadData} />
     {:else if gameState.isLoadingCharacter}
       <!-- Loading State -->
       <div class="flex min-h-[400px] items-center justify-center">
