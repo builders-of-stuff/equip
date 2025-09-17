@@ -1,10 +1,35 @@
 import { SvelteSet } from 'svelte/reactivity';
 import { Item, ItemType, ItemRarity, type ItemStats } from './item.js';
+import {
+  SLOT_HELMET,
+  SLOT_ARMOR,
+  SLOT_LEGS,
+  SLOT_RIGHT_ARM,
+  SLOT_LEFT_ARM,
+  ID_HELMET_1,
+  ID_HELMET_2,
+  ID_ARMOR_1,
+  ID_ARMOR_2,
+  ID_LEGS_1,
+  ID_LEGS_2,
+  ID_RIGHT_ARM_1,
+  ID_LEFT_ARM_1,
+  ID_LEFT_ARM_2,
+  ITEM_IRON_HELMET,
+  ITEM_DRAGON_SCALE_HELMET,
+  ITEM_LEATHER_ARMOR,
+  ITEM_MYSTICAL_ROBES,
+  ITEM_LEATHER_PANTS,
+  ITEM_ENCHANTED_LEGGINGS,
+  ITEM_IRON_GAUNTLETS,
+  ITEM_SHIELD_OF_VALOR,
+  ITEM_ARCANE_BRACERS
+} from './constants.js';
 
 export interface EquippedItems {
   helmet?: Item;
   armor?: Item;
-  sword?: Item;
+  legs?: Item;
   right_arm?: Item;
   left_arm?: Item;
 }
@@ -143,15 +168,15 @@ export class GameState {
   private getSlotForItemType(itemType: ItemType): keyof EquippedItems {
     switch (itemType) {
       case ItemType.HELMET:
-        return 'helmet';
+        return SLOT_HELMET as keyof EquippedItems;
       case ItemType.ARMOR:
-        return 'armor';
-      case ItemType.SWORD:
-        return 'sword';
+        return SLOT_ARMOR as keyof EquippedItems;
+      case ItemType.LEGS:
+        return SLOT_LEGS as keyof EquippedItems;
       case ItemType.RIGHT_ARM:
-        return 'right_arm';
+        return SLOT_RIGHT_ARM as keyof EquippedItems;
       case ItemType.LEFT_ARM:
-        return 'left_arm';
+        return SLOT_LEFT_ARM as keyof EquippedItems;
       default:
         throw new Error(`Unknown item type: ${itemType}`);
     }
@@ -160,8 +185,8 @@ export class GameState {
   private initializeStarterItems(): void {
     const starterItems = [
       new Item(
-        'helmet_1',
-        'Iron Helmet',
+        ID_HELMET_1,
+        ITEM_IRON_HELMET,
         ItemType.HELMET,
         ItemRarity.COMMON,
         { defense: 5, health: 10 },
@@ -169,8 +194,8 @@ export class GameState {
         'A basic iron helmet that provides decent protection.'
       ),
       new Item(
-        'helmet_2',
-        'Dragon Scale Helmet',
+        ID_HELMET_2,
+        ITEM_DRAGON_SCALE_HELMET,
         ItemType.HELMET,
         ItemRarity.EPIC,
         { defense: 15, health: 25, mana: 10 },
@@ -178,8 +203,8 @@ export class GameState {
         'A magnificent helmet crafted from dragon scales.'
       ),
       new Item(
-        'armor_1',
-        'Leather Armor',
+        ID_ARMOR_1,
+        ITEM_LEATHER_ARMOR,
         ItemType.ARMOR,
         ItemRarity.COMMON,
         { defense: 8, health: 15 },
@@ -187,8 +212,8 @@ export class GameState {
         'Simple leather armor for basic protection.'
       ),
       new Item(
-        'armor_2',
-        'Mystical Robes',
+        ID_ARMOR_2,
+        ITEM_MYSTICAL_ROBES,
         ItemType.ARMOR,
         ItemRarity.RARE,
         { defense: 12, health: 20, mana: 30 },
@@ -196,26 +221,26 @@ export class GameState {
         'Enchanted robes that enhance magical abilities.'
       ),
       new Item(
-        'sword_1',
-        'Iron Sword',
-        ItemType.SWORD,
+        ID_LEGS_1,
+        ITEM_LEATHER_PANTS,
+        ItemType.LEGS,
         ItemRarity.COMMON,
-        { attack: 15 },
-        '⚔️',
-        'A reliable iron sword for combat.'
+        { defense: 8 },
+        '👖',
+        'Sturdy leather pants for protection.'
       ),
       new Item(
-        'sword_2',
-        'Flame Blade',
-        ItemType.SWORD,
+        ID_LEGS_2,
+        ITEM_ENCHANTED_LEGGINGS,
+        ItemType.LEGS,
         ItemRarity.LEGENDARY,
-        { attack: 35, mana: 15 },
-        '🔥',
-        'A legendary sword wreathed in eternal flames.'
+        { defense: 25, mana: 10 },
+        '✨',
+        'Mystical leggings imbued with arcane power.'
       ),
       new Item(
-        'right_arm_1',
-        'Iron Gauntlets',
+        ID_RIGHT_ARM_1,
+        ITEM_IRON_GAUNTLETS,
         ItemType.RIGHT_ARM,
         ItemRarity.UNCOMMON,
         { attack: 5, defense: 3 },
@@ -223,8 +248,8 @@ export class GameState {
         'Sturdy iron gauntlets for protection and power.'
       ),
       new Item(
-        'left_arm_1',
-        'Shield of Valor',
+        ID_LEFT_ARM_1,
+        ITEM_SHIELD_OF_VALOR,
         ItemType.LEFT_ARM,
         ItemRarity.RARE,
         { defense: 20, health: 15 },
@@ -232,8 +257,8 @@ export class GameState {
         'A noble shield blessed with protective magic.'
       ),
       new Item(
-        'left_arm_2',
-        'Arcane Bracers',
+        ID_LEFT_ARM_2,
+        ITEM_ARCANE_BRACERS,
         ItemType.LEFT_ARM,
         ItemRarity.EPIC,
         { defense: 8, mana: 25, attack: 5 },

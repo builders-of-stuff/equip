@@ -1,7 +1,7 @@
 export enum ItemType {
   HELMET = 'helmet',
   ARMOR = 'armor',
-  SWORD = 'sword',
+  LEGS = 'legs',
   RIGHT_ARM = 'right_arm',
   LEFT_ARM = 'left_arm'
 }

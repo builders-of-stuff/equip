@@ -54,10 +54,10 @@
     <!-- Bottom row: Sword -->
     <div></div>
     <EquipmentSlot
-      slotType={ItemType.SWORD}
-      item={gameState.equipped.sword}
+      slotType={ItemType.LEGS}
+      item={gameState.equipped.legs}
       onDrop={handleEquipItem}
-      onRemove={() => handleUnequipItem(ItemType.SWORD)}
+      onRemove={() => handleUnequipItem(ItemType.LEGS)}
     />
     <div></div>
   </div>
