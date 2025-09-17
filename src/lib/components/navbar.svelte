@@ -4,16 +4,6 @@
     ConnectButton,
     testnetWalletAdapter as walletAdapter
   } from '@builders-of-stuff/svelte-sui-wallet-adapter';
-  import { Button } from './ui/button/index.js';
-  import { mintCharacterAndItems } from '$lib/contracts/contract-tools.js';
-  import { Loader2, Plus } from 'lucide-svelte';
-
-  interface Props {
-    gameState: GameState;
-    onMintSuccess?: () => void;
-  }
-
-  let { gameState, onMintSuccess }: Props = $props();
 </script>
 
 <nav class="border-b border-gray-700 bg-gray-900 px-6 py-4">

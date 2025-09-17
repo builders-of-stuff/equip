@@ -5,25 +5,7 @@ import {
   SLOT_ARMOR,
   SLOT_LEGS,
   SLOT_RIGHT_ARM,
-  SLOT_LEFT_ARM,
-  ID_HELMET_1,
-  ID_HELMET_2,
-  ID_ARMOR_1,
-  ID_ARMOR_2,
-  ID_LEGS_1,
-  ID_LEGS_2,
-  ID_RIGHT_ARM_1,
-  ID_LEFT_ARM_1,
-  ID_LEFT_ARM_2,
-  ITEM_IRON_HELMET,
-  ITEM_DRAGON_SCALE_HELMET,
-  ITEM_LEATHER_ARMOR,
-  ITEM_MYSTICAL_ROBES,
-  ITEM_LEATHER_PANTS,
-  ITEM_ENCHANTED_LEGGINGS,
-  ITEM_IRON_GAUNTLETS,
-  ITEM_SHIELD_OF_VALOR,
-  ITEM_ARCANE_BRACERS
+  SLOT_LEFT_ARM
 } from './constants.js';
 import type { SuiCharacter, SuiItem } from '../contracts/contract-tools.js';
 import { suiItemToItem, suiItemsToItems } from '../contracts/utils.js';
@@ -54,13 +36,9 @@ export class GameState {
   #isMinting = $state<boolean>(false);
   #isDeleting = $state<boolean>(false);
   #hasUnsavedChanges = $state<boolean>(false);
-  #useBlockchainData = $state<boolean>(false);
 
-  constructor(useBlockchainData = false) {
-    this.#useBlockchainData = useBlockchainData;
-    if (!useBlockchainData) {
-      this.initializeStarterItems();
-    }
+  constructor() {
+    // Blockchain mode is always enabled
   }
 
   get equipped(): EquippedItems {
@@ -127,9 +105,6 @@ export class GameState {
     return this.#hasUnsavedChanges;
   }
 
-  get useBlockchainData(): boolean {
-    return this.#useBlockchainData;
-  }
 
   get isLoading(): boolean {
     return (
@@ -216,9 +191,7 @@ export class GameState {
       this.addItem(previousItem);
     }
 
-    if (this.#useBlockchainData) {
-      this.#hasUnsavedChanges = true;
-    }
+    this.#hasUnsavedChanges = true;
 
     return true;
   }
@@ -229,9 +202,7 @@ export class GameState {
 
     this.addItem(item);
 
-    if (this.#useBlockchainData) {
-      this.#hasUnsavedChanges = true;
-    }
+    this.#hasUnsavedChanges = true;
 
     return true;
   }
@@ -253,100 +224,13 @@ export class GameState {
     }
   }
 
-  private initializeStarterItems(): void {
-    const starterItems = [
-      new Item(
-        ID_HELMET_1,
-        ITEM_IRON_HELMET,
-        ItemSlot.HELMET,
-        ItemRarity.COMMON,
-        { defense: 5, health: 10 },
-        '🪖',
-        'A basic iron helmet that provides decent protection.'
-      ),
-      new Item(
-        ID_HELMET_2,
-        ITEM_DRAGON_SCALE_HELMET,
-        ItemSlot.HELMET,
-        ItemRarity.EPIC,
-        { defense: 15, health: 25, mana: 10 },
-        '👑',
-        'A magnificent helmet crafted from dragon scales.'
-      ),
-      new Item(
-        ID_ARMOR_1,
-        ITEM_LEATHER_ARMOR,
-        ItemSlot.ARMOR,
-        ItemRarity.COMMON,
-        { defense: 8, health: 15 },
-        '🦺',
-        'Simple leather armor for basic protection.'
-      ),
-      new Item(
-        ID_ARMOR_2,
-        ITEM_MYSTICAL_ROBES,
-        ItemSlot.ARMOR,
-        ItemRarity.RARE,
-        { defense: 12, health: 20, mana: 30 },
-        '👘',
-        'Enchanted robes that enhance magical abilities.'
-      ),
-      new Item(
-        ID_LEGS_1,
-        ITEM_LEATHER_PANTS,
-        ItemSlot.LEGS,
-        ItemRarity.COMMON,
-        { defense: 8 },
-        '👖',
-        'Sturdy leather pants for protection.'
-      ),
-      new Item(
-        ID_LEGS_2,
-        ITEM_ENCHANTED_LEGGINGS,
-        ItemSlot.LEGS,
-        ItemRarity.LEGENDARY,
-        { defense: 25, mana: 10 },
-        '✨',
-        'Mystical leggings imbued with arcane power.'
-      ),
-      new Item(
-        ID_RIGHT_ARM_1,
-        ITEM_IRON_GAUNTLETS,
-        ItemSlot.RIGHT_ARM,
-        ItemRarity.UNCOMMON,
-        { attack: 5, defense: 3 },
-        '🧤',
-        'Sturdy iron gauntlets for protection and power.'
-      ),
-      new Item(
-        ID_LEFT_ARM_1,
-        ITEM_SHIELD_OF_VALOR,
-        ItemSlot.LEFT_ARM,
-        ItemRarity.RARE,
-        { defense: 20, health: 15 },
-        '🛡️',
-        'A noble shield blessed with protective magic.'
-      ),
-      new Item(
-        ID_LEFT_ARM_2,
-        ITEM_ARCANE_BRACERS,
-        ItemSlot.LEFT_ARM,
-        ItemRarity.EPIC,
-        { defense: 8, mana: 25, attack: 5 },
-        '💎',
-        'Magical bracers that amplify spellcasting abilities.'
-      )
-    ];
-
-    starterItems.forEach((item) => this.addItem(item));
-  }
 
   // Blockchain-related methods
 
   /**
-   * Load character data from blockchain
+   * Load character data
    */
-  loadCharacterFromBlockchain(character: SuiCharacter | null): void {
+  loadCharacter(character: SuiCharacter | null): void {
     if (!character) {
       this.#characterId = null;
       this.#equipped = {};
@@ -365,34 +249,12 @@ export class GameState {
   }
 
   /**
-   * Load items from blockchain
+   * Load items
    */
-  loadItemsFromBlockchain(items: SuiItem[]): void {
+  loadItems(items: SuiItem[]): void {
     this.#items = suiItemsToItems(items);
   }
 
-  /**
-   * Enable blockchain mode
-   */
-  enableBlockchainMode(): void {
-    this.#useBlockchainData = true;
-    // Clear mock data
-    this.#items = [];
-    this.#equipped = {};
-    this.#characterId = null;
-  }
-
-  /**
-   * Disable blockchain mode (for development/testing)
-   */
-  disableBlockchainMode(): void {
-    this.#useBlockchainData = false;
-    this.#characterId = null;
-    this.#hasUnsavedChanges = false;
-    this.#equipped = {};
-    this.#items = [];
-    this.initializeStarterItems();
-  }
 
   /**
    * Set loading states

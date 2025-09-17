@@ -12,7 +12,7 @@
   } from '$lib/contracts/contract-tools.js';
   import { untrack } from 'svelte';
 
-  const gameState = new GameState(true); // Enable blockchain mode
+  const gameState = new GameState();
   let hasCheckedInitialData = $state(false);
 
   // Effect to fetch character and items when wallet connects or changes
@@ -28,15 +28,13 @@
     untrack(() => {
       (async () => {
         try {
-          gameState.enableBlockchainMode();
-
           // Fetch character data
           gameState.setLoadingCharacter(true);
           const character = await fetchCharacter(
             walletAdapter.suiClient,
             walletAdapter.currentAccount!.address
           );
-          gameState.loadCharacterFromBlockchain(character);
+          gameState.loadCharacter(character);
 
           // Fetch items data
           gameState.setLoadingItems(true);
@@ -44,7 +42,7 @@
             walletAdapter.suiClient,
             walletAdapter.currentAccount!.address
           );
-          gameState.loadItemsFromBlockchain(items);
+          gameState.loadItems(items);
 
           hasCheckedInitialData = true;
         } catch (error) {
@@ -77,13 +75,13 @@
         walletAdapter.suiClient,
         walletAdapter.currentAccount.address
       );
-      gameState.loadCharacterFromBlockchain(character);
+      gameState.loadCharacter(character);
 
       const items = await fetchItems(
         walletAdapter.suiClient,
         walletAdapter.currentAccount.address
       );
-      gameState.loadItemsFromBlockchain(items);
+      gameState.loadItems(items);
     } catch (error) {
       console.error('Failed to refetch data after mint:', error);
     } finally {
@@ -122,10 +120,10 @@
 </svelte:head>
 
 <div class="min-h-screen">
-  <Navbar {gameState} onMintSuccess={handleMintSuccess} />
+  <Navbar />
 
   <main class="container mx-auto p-6">
-    {#if gameState.useBlockchainData && !gameState.hasCharacter && !gameState.isLoadingCharacter}
+    {#if !gameState.hasCharacter && !gameState.isLoadingCharacter}
       <!-- Empty State - No Character -->
       <EmptyCharacterState {gameState} onMintSuccess={handleMintSuccess} />
     {:else if gameState.isLoadingCharacter}

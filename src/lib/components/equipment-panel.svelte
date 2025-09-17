@@ -99,7 +99,7 @@
   </div>
 
   <!-- Blockchain Actions -->
-  {#if gameState.useBlockchainData && gameState.hasCharacter}
+  {#if gameState.hasCharacter}
     <div class="mt-6 space-y-3">
       <!-- Save Changes Button -->
       <Button
