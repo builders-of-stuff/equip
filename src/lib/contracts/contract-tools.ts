@@ -42,7 +42,7 @@ export const mintCharacterAndItems = async (walletAdapter: any) => {
   });
 
   // Create starter items
-  const items = tx.moveCall({
+  const [items] = tx.moveCall({
     target: CONTRACT_FUNCTIONS.CREATE_STARTER_ITEMS,
     arguments: []
   });

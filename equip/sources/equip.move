@@ -56,154 +56,131 @@ public fun create_character(ctx: &mut TxContext): Character {
     character
 }
 
-public fun create_starter_items(ctx: &mut TxContext): vector<Item> {
-    let mut items = vector::empty<Item>();
-
+public fun create_starter_items(
+    ctx: &mut TxContext,
+): (
+    equip::equip::Item,
+    equip::equip::Item,
+    equip::equip::Item,
+    equip::equip::Item,
+    equip::equip::Item,
+    equip::equip::Item,
+    equip::equip::Item,
+    equip::equip::Item,
+    equip::equip::Item,
+) {
     // Iron Helmet
-    vector::push_back(
-        &mut items,
-        Item {
-            id: object::new(ctx),
-            `type`: IRON_HELMET,
-            slot: SLOT_HELMET,
-            stats: ItemStats {
-                attack: 0,
-                defense: 5,
-                health: 10,
-                mana: 0,
-            },
+    let iron_helmet = Item {
+        id: object::new(ctx),
+        `type`: IRON_HELMET,
+        slot: SLOT_HELMET,
+        stats: ItemStats {
+            attack: 0,
+            defense: 5,
+            health: 10,
+            mana: 0,
         },
-    );
-
-    // Dragon Scale Helmet
-    vector::push_back(
-        &mut items,
-        Item {
-            id: object::new(ctx),
-            `type`: DRAGON_SCALE_HELMET,
-            slot: SLOT_HELMET,
-            stats: ItemStats {
-                attack: 0,
-                defense: 15,
-                health: 25,
-                mana: 10,
-            },
+    };
+    let dragon_scale_helmet = Item {
+        id: object::new(ctx),
+        `type`: DRAGON_SCALE_HELMET,
+        slot: SLOT_HELMET,
+        stats: ItemStats {
+            attack: 0,
+            defense: 15,
+            health: 25,
+            mana: 10,
         },
-    );
-
-    // Leather Armor
-    vector::push_back(
-        &mut items,
-        Item {
-            id: object::new(ctx),
-            `type`: LEATHER_ARMOR,
-            slot: SLOT_ARMOR,
-            stats: ItemStats {
-                attack: 0,
-                defense: 8,
-                health: 15,
-                mana: 0,
-            },
+    };
+    let leather_armor = Item {
+        id: object::new(ctx),
+        `type`: LEATHER_ARMOR,
+        slot: SLOT_ARMOR,
+        stats: ItemStats {
+            attack: 0,
+            defense: 8,
+            health: 15,
+            mana: 0,
         },
-    );
-
-    // Mystical Robes
-    vector::push_back(
-        &mut items,
-        Item {
-            id: object::new(ctx),
-            `type`: MYSTICAL_ROBES,
-            slot: SLOT_ARMOR,
-            stats: ItemStats {
-                attack: 0,
-                defense: 12,
-                health: 20,
-                mana: 30,
-            },
+    };
+    let mystical_robes = Item {
+        id: object::new(ctx),
+        `type`: MYSTICAL_ROBES,
+        slot: SLOT_ARMOR,
+        stats: ItemStats {
+            attack: 0,
+            defense: 12,
+            health: 20,
+            mana: 30,
         },
-    );
-
-    // Leather Pants
-    vector::push_back(
-        &mut items,
-        Item {
-            id: object::new(ctx),
-            `type`: LEATHER_PANTS,
-            slot: SLOT_LEGS,
-            stats: ItemStats {
-                attack: 0,
-                defense: 8,
-                health: 0,
-                mana: 0,
-            },
+    };
+    let leather_pants = Item {
+        id: object::new(ctx),
+        `type`: LEATHER_PANTS,
+        slot: SLOT_LEGS,
+        stats: ItemStats {
+            attack: 0,
+            defense: 8,
+            health: 0,
+            mana: 0,
         },
-    );
-
-    // Enchanted Leggings
-    vector::push_back(
-        &mut items,
-        Item {
-            id: object::new(ctx),
-            `type`: ENCHANTED_LEGGINGS,
-            slot: SLOT_LEGS,
-            stats: ItemStats {
-                attack: 0,
-                defense: 25,
-                health: 0,
-                mana: 10,
-            },
+    };
+    let enchanted_leggings = Item {
+        id: object::new(ctx),
+        `type`: ENCHANTED_LEGGINGS,
+        slot: SLOT_LEGS,
+        stats: ItemStats {
+            attack: 0,
+            defense: 25,
+            health: 0,
+            mana: 10,
         },
-    );
-
-    // Iron Gauntlets
-    vector::push_back(
-        &mut items,
-        Item {
-            id: object::new(ctx),
-            `type`: IRON_GAUNTLETS,
-            slot: SLOT_RIGHT_ARM,
-            stats: ItemStats {
-                attack: 5,
-                defense: 3,
-                health: 0,
-                mana: 0,
-            },
+    };
+    let iron_gauntlets = Item {
+        id: object::new(ctx),
+        `type`: IRON_GAUNTLETS,
+        slot: SLOT_RIGHT_ARM,
+        stats: ItemStats {
+            attack: 5,
+            defense: 3,
+            health: 0,
+            mana: 0,
         },
-    );
-
-    // Shield of Valor
-    vector::push_back(
-        &mut items,
-        Item {
-            id: object::new(ctx),
-            `type`: SHIELD_OF_VALOR,
-            slot: SLOT_LEFT_ARM,
-            stats: ItemStats {
-                attack: 0,
-                defense: 20,
-                health: 15,
-                mana: 0,
-            },
+    };
+    let shield_of_valor = Item {
+        id: object::new(ctx),
+        `type`: SHIELD_OF_VALOR,
+        slot: SLOT_LEFT_ARM,
+        stats: ItemStats {
+            attack: 0,
+            defense: 20,
+            health: 15,
+            mana: 0,
         },
-    );
-
-    // Arcane Bracers
-    vector::push_back(
-        &mut items,
-        Item {
-            id: object::new(ctx),
-            `type`: ARCANE_BRACERS,
-            slot: SLOT_LEFT_ARM,
-            stats: ItemStats {
-                attack: 5,
-                defense: 8,
-                health: 0,
-                mana: 25,
-            },
+    };
+    let arcane_bracers = Item {
+        id: object::new(ctx),
+        `type`: ARCANE_BRACERS,
+        slot: SLOT_LEFT_ARM,
+        stats: ItemStats {
+            attack: 5,
+            defense: 8,
+            health: 0,
+            mana: 25,
         },
-    );
+    };
 
-    items
+    (
+        iron_helmet,
+        dragon_scale_helmet,
+        leather_armor,
+        mystical_robes,
+        leather_pants,
+        enchanted_leggings,
+        iron_gauntlets,
+        shield_of_valor,
+        arcane_bracers,
+    )
 }
 
 public fun delete_character(character: Character) {
