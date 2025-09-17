@@ -18,8 +18,7 @@
     <div class="flex items-center space-x-3">
       <div class="text-2xl">⚔️</div>
       <div>
-        <h1 class="text-xl font-bold text-white">Equip Playground</h1>
-        <p class="text-xs text-gray-400">RPG Equipment Simulator</p>
+        <h1 class="text-xl font-bold text-white">Equip Your Character</h1>
       </div>
     </div>
 
