@@ -25,7 +25,7 @@
     <div></div>
     <EquipmentSlot
       slotType={ItemType.HELMET}
-      item={gameState.player.equipped.helmet}
+      item={gameState.equipped.helmet}
       onDrop={handleEquipItem}
       onRemove={() => handleUnequipItem(ItemType.HELMET)}
     />
@@ -34,19 +34,19 @@
     <!-- Middle row: Right Arm, Armor, Left Arm -->
     <EquipmentSlot
       slotType={ItemType.RIGHT_ARM}
-      item={gameState.player.equipped.right_arm}
+      item={gameState.equipped.right_arm}
       onDrop={handleEquipItem}
       onRemove={() => handleUnequipItem(ItemType.RIGHT_ARM)}
     />
     <EquipmentSlot
       slotType={ItemType.ARMOR}
-      item={gameState.player.equipped.armor}
+      item={gameState.equipped.armor}
       onDrop={handleEquipItem}
       onRemove={() => handleUnequipItem(ItemType.ARMOR)}
     />
     <EquipmentSlot
       slotType={ItemType.LEFT_ARM}
-      item={gameState.player.equipped.left_arm}
+      item={gameState.equipped.left_arm}
       onDrop={handleEquipItem}
       onRemove={() => handleUnequipItem(ItemType.LEFT_ARM)}
     />
@@ -55,7 +55,7 @@
     <div></div>
     <EquipmentSlot
       slotType={ItemType.SWORD}
-      item={gameState.player.equipped.sword}
+      item={gameState.equipped.sword}
       onDrop={handleEquipItem}
       onRemove={() => handleUnequipItem(ItemType.SWORD)}
     />
@@ -66,10 +66,10 @@
   <div class="mt-6 rounded-lg border border-gray-600 bg-gray-800 p-4">
     <h3 class="mb-2 text-lg font-semibold text-white">Stats</h3>
     <div class="grid grid-cols-2 gap-2 text-sm">
-      <div class="text-red-400">⚔️ Attack: {gameState.player.totalStats.attack}</div>
-      <div class="text-blue-400">🛡️ Defense: {gameState.player.totalStats.defense}</div>
-      <div class="text-green-400">❤️ Health: {gameState.player.totalStats.health}</div>
-      <div class="text-purple-400">💙 Mana: {gameState.player.totalStats.mana}</div>
+      <div class="text-red-400">⚔️ Attack: {gameState.totalStats.attack}</div>
+      <div class="text-blue-400">🛡️ Defense: {gameState.totalStats.defense}</div>
+      <div class="text-green-400">❤️ Health: {gameState.totalStats.health}</div>
+      <div class="text-purple-400">💙 Mana: {gameState.totalStats.mana}</div>
     </div>
   </div>
 </div>

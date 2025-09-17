@@ -9,7 +9,7 @@ export interface EquippedItems {
   left_arm?: Item;
 }
 
-export class Player {
+export class GameState {
   #equipped = $state<EquippedItems>({});
   #baseStats = $state<ItemStats>({
     attack: 10,
@@ -17,6 +17,11 @@ export class Player {
     health: 100,
     mana: 50
   });
+  #items = $state<Item[]>([]);
+
+  constructor() {
+    this.initializeStarterItems();
+  }
 
   get equipped(): EquippedItems {
     return this.#equipped;
@@ -41,6 +46,14 @@ export class Player {
     return total;
   }
 
+  get items(): Item[] {
+    return this.#items;
+  }
+
+  get inventorySize(): number {
+    return this.#items.length;
+  }
+
   equipItem(item: Item): Item | null {
     const slot = this.getSlotForItemType(item.type);
     const previousItem = this.#equipped[slot];
@@ -63,31 +76,6 @@ export class Player {
     return this.#equipped[slot];
   }
 
-  private getSlotForItemType(itemType: ItemType): keyof EquippedItems {
-    switch (itemType) {
-      case ItemType.HELMET:
-        return 'helmet';
-      case ItemType.ARMOR:
-        return 'armor';
-      case ItemType.SWORD:
-        return 'sword';
-      case ItemType.RIGHT_ARM:
-        return 'right_arm';
-      case ItemType.LEFT_ARM:
-        return 'left_arm';
-      default:
-        throw new Error(`Unknown item type: ${itemType}`);
-    }
-  }
-}
-
-export class Inventory {
-  #items = $state<Item[]>([]);
-
-  get items(): Item[] {
-    return this.#items;
-  }
-
   addItem(item: Item): void {
     this.#items.push(item);
   }
@@ -108,12 +96,8 @@ export class Inventory {
     return this.#items.some((item) => item.id === itemId);
   }
 
-  clear(): void {
+  clearInventory(): void {
     this.#items.length = 0;
-  }
-
-  get size(): number {
-    return this.#items.length;
   }
 
   getFilteredItems(typeFilter?: ItemType, rarityFilter?: ItemRarity): Item[] {
@@ -133,37 +117,44 @@ export class Inventory {
     const rarities = new SvelteSet(this.#items.map((item) => item.rarity));
     return Array.from(rarities);
   }
-}
-
-export class GameState {
-  player = new Player();
-  inventory = new Inventory();
-
-  constructor() {
-    this.initializeStarterItems();
-  }
-
 
   equipItemFromInventory(itemId: string): boolean {
-    const item = this.inventory.getItem(itemId);
+    const item = this.getItem(itemId);
     if (!item) return false;
 
-    const previousItem = this.player.equipItem(item);
-    this.inventory.removeItem(itemId);
+    const previousItem = this.equipItem(item);
+    this.removeItem(itemId);
 
     if (previousItem) {
-      this.inventory.addItem(previousItem);
+      this.addItem(previousItem);
     }
 
     return true;
   }
 
   unequipItemToInventory(itemType: ItemType): boolean {
-    const item = this.player.unequipItem(itemType);
+    const item = this.unequipItem(itemType);
     if (!item) return false;
 
-    this.inventory.addItem(item);
+    this.addItem(item);
     return true;
+  }
+
+  private getSlotForItemType(itemType: ItemType): keyof EquippedItems {
+    switch (itemType) {
+      case ItemType.HELMET:
+        return 'helmet';
+      case ItemType.ARMOR:
+        return 'armor';
+      case ItemType.SWORD:
+        return 'sword';
+      case ItemType.RIGHT_ARM:
+        return 'right_arm';
+      case ItemType.LEFT_ARM:
+        return 'left_arm';
+      default:
+        throw new Error(`Unknown item type: ${itemType}`);
+    }
   }
 
   private initializeStarterItems(): void {
@@ -251,6 +242,6 @@ export class GameState {
       )
     ];
 
-    starterItems.forEach(item => this.inventory.addItem(item));
+    starterItems.forEach(item => this.addItem(item));
   }
 }
