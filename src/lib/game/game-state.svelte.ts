@@ -1,6 +1,139 @@
-import { Player } from './player.svelte.js';
-import { Inventory } from './inventory.svelte.js';
-import { Item, ItemType, ItemRarity } from './item.js';
+import { SvelteSet } from 'svelte/reactivity';
+import { Item, ItemType, ItemRarity, type ItemStats } from './item.js';
+
+export interface EquippedItems {
+  helmet?: Item;
+  armor?: Item;
+  sword?: Item;
+  right_arm?: Item;
+  left_arm?: Item;
+}
+
+export class Player {
+  #equipped = $state<EquippedItems>({});
+  #baseStats = $state<ItemStats>({
+    attack: 10,
+    defense: 10,
+    health: 100,
+    mana: 50
+  });
+
+  get equipped(): EquippedItems {
+    return this.#equipped;
+  }
+
+  get baseStats(): ItemStats {
+    return this.#baseStats;
+  }
+
+  get totalStats(): ItemStats {
+    const total = { ...this.#baseStats };
+
+    Object.values(this.#equipped).forEach(item => {
+      if (item) {
+        total.attack = (total.attack || 0) + (item.stats.attack || 0);
+        total.defense = (total.defense || 0) + (item.stats.defense || 0);
+        total.health = (total.health || 0) + (item.stats.health || 0);
+        total.mana = (total.mana || 0) + (item.stats.mana || 0);
+      }
+    });
+
+    return total;
+  }
+
+  equipItem(item: Item): Item | null {
+    const slot = this.getSlotForItemType(item.type);
+    const previousItem = this.#equipped[slot];
+    this.#equipped[slot] = item;
+    return previousItem || null;
+  }
+
+  unequipItem(itemType: ItemType): Item | null {
+    const slot = this.getSlotForItemType(itemType);
+    const item = this.#equipped[slot];
+    if (item) {
+      this.#equipped[slot] = undefined;
+      return item;
+    }
+    return null;
+  }
+
+  getEquippedItem(itemType: ItemType): Item | undefined {
+    const slot = this.getSlotForItemType(itemType);
+    return this.#equipped[slot];
+  }
+
+  private getSlotForItemType(itemType: ItemType): keyof EquippedItems {
+    switch (itemType) {
+      case ItemType.HELMET:
+        return 'helmet';
+      case ItemType.ARMOR:
+        return 'armor';
+      case ItemType.SWORD:
+        return 'sword';
+      case ItemType.RIGHT_ARM:
+        return 'right_arm';
+      case ItemType.LEFT_ARM:
+        return 'left_arm';
+      default:
+        throw new Error(`Unknown item type: ${itemType}`);
+    }
+  }
+}
+
+export class Inventory {
+  #items = $state<Item[]>([]);
+
+  get items(): Item[] {
+    return this.#items;
+  }
+
+  addItem(item: Item): void {
+    this.#items.push(item);
+  }
+
+  removeItem(itemId: string): Item | null {
+    const index = this.#items.findIndex((item) => item.id === itemId);
+    if (index !== -1) {
+      return this.#items.splice(index, 1)[0];
+    }
+    return null;
+  }
+
+  getItem(itemId: string): Item | undefined {
+    return this.#items.find((item) => item.id === itemId);
+  }
+
+  hasItem(itemId: string): boolean {
+    return this.#items.some((item) => item.id === itemId);
+  }
+
+  clear(): void {
+    this.#items.length = 0;
+  }
+
+  get size(): number {
+    return this.#items.length;
+  }
+
+  getFilteredItems(typeFilter?: ItemType, rarityFilter?: ItemRarity): Item[] {
+    return this.#items.filter((item) => {
+      const matchesType = !typeFilter || item.type === typeFilter;
+      const matchesRarity = !rarityFilter || item.rarity === rarityFilter;
+      return matchesType && matchesRarity;
+    });
+  }
+
+  getAvailableTypes(): ItemType[] {
+    const types = new SvelteSet(this.#items.map((item) => item.type));
+    return Array.from(types);
+  }
+
+  getAvailableRarities(): ItemRarity[] {
+    const rarities = new SvelteSet(this.#items.map((item) => item.rarity));
+    return Array.from(rarities);
+  }
+}
 
 export class GameState {
   player = new Player();
