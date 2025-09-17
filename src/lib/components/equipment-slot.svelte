@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { Item, ItemType } from '$lib/game';
+  import { Item, ItemSlot } from '$lib/game';
   import ItemCard from './item-card.svelte';
 
   interface Props {
-    slotType: ItemType;
+    slotType: ItemSlot;
     item?: Item;
     onDrop: (item: Item) => void;
     onRemove: () => void;
@@ -29,30 +29,30 @@
     const itemData = event.dataTransfer?.getData('application/json');
     if (itemData) {
       const droppedItem = JSON.parse(itemData) as Item;
-      if (droppedItem.type === slotType) {
+      if (droppedItem.slot === slotType) {
         onDrop(droppedItem);
       }
     }
   }
 
-  function getSlotLabel(type: ItemType): string {
-    switch (type) {
-      case ItemType.HELMET: return 'Helmet';
-      case ItemType.ARMOR: return 'Armor';
-      case ItemType.SWORD: return 'Sword';
-      case ItemType.RIGHT_ARM: return 'Right Arm';
-      case ItemType.LEFT_ARM: return 'Left Arm';
-      default: return type;
+  function getSlotLabel(slot: ItemSlot): string {
+    switch (slot) {
+      case ItemSlot.HELMET: return 'Helmet';
+      case ItemSlot.ARMOR: return 'Armor';
+      case ItemSlot.SWORD: return 'Sword';
+      case ItemSlot.RIGHT_ARM: return 'Right Arm';
+      case ItemSlot.LEFT_ARM: return 'Left Arm';
+      default: return slot;
     }
   }
 
-  function getSlotIcon(type: ItemType): string {
-    switch (type) {
-      case ItemType.HELMET: return '🪖';
-      case ItemType.ARMOR: return '🦺';
-      case ItemType.SWORD: return '⚔️';
-      case ItemType.RIGHT_ARM: return '🧤';
-      case ItemType.LEFT_ARM: return '🛡️';
+  function getSlotIcon(slot: ItemSlot): string {
+    switch (slot) {
+      case ItemSlot.HELMET: return '🪖';
+      case ItemSlot.ARMOR: return '🦺';
+      case ItemSlot.SWORD: return '⚔️';
+      case ItemSlot.RIGHT_ARM: return '🧤';
+      case ItemSlot.LEFT_ARM: return '🛡️';
       default: return '❓';
     }
   }

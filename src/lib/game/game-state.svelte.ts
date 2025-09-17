@@ -1,5 +1,5 @@
 import { SvelteSet } from 'svelte/reactivity';
-import { Item, ItemType, ItemRarity, type ItemStats } from './item.js';
+import { Item, ItemSlot, ItemRarity, type ItemStats } from './item.js';
 import {
   SLOT_HELMET,
   SLOT_ARMOR,
@@ -80,14 +80,14 @@ export class GameState {
   }
 
   equipItem(item: Item): Item | null {
-    const slot = this.getSlotForItemType(item.type);
+    const slot = this.getSlotForItemSlot(item.slot);
     const previousItem = this.#equipped[slot];
     this.#equipped[slot] = item;
     return previousItem || null;
   }
 
-  unequipItem(itemType: ItemType): Item | null {
-    const slot = this.getSlotForItemType(itemType);
+  unequipItem(itemSlot: ItemSlot): Item | null {
+    const slot = this.getSlotForItemSlot(itemSlot);
     const item = this.#equipped[slot];
     if (item) {
       this.#equipped[slot] = undefined;
@@ -96,8 +96,8 @@ export class GameState {
     return null;
   }
 
-  getEquippedItem(itemType: ItemType): Item | undefined {
-    const slot = this.getSlotForItemType(itemType);
+  getEquippedItem(itemSlot: ItemSlot): Item | undefined {
+    const slot = this.getSlotForItemSlot(itemSlot);
     return this.#equipped[slot];
   }
 
@@ -125,17 +125,17 @@ export class GameState {
     this.#items.length = 0;
   }
 
-  getFilteredItems(typeFilter?: ItemType, rarityFilter?: ItemRarity): Item[] {
+  getFilteredItems(slotFilter?: ItemSlot, rarityFilter?: ItemRarity): Item[] {
     return this.#items.filter((item) => {
-      const matchesType = !typeFilter || item.type === typeFilter;
+      const matchesSlot = !slotFilter || item.slot === slotFilter;
       const matchesRarity = !rarityFilter || item.rarity === rarityFilter;
-      return matchesType && matchesRarity;
+      return matchesSlot && matchesRarity;
     });
   }
 
-  getAvailableTypes(): ItemType[] {
-    const types = new SvelteSet(this.#items.map((item) => item.type));
-    return Array.from(types);
+  getAvailableSlots(): ItemSlot[] {
+    const slots = new SvelteSet(this.#items.map((item) => item.slot));
+    return Array.from(slots);
   }
 
   getAvailableRarities(): ItemRarity[] {
@@ -157,28 +157,28 @@ export class GameState {
     return true;
   }
 
-  unequipItemToInventory(itemType: ItemType): boolean {
-    const item = this.unequipItem(itemType);
+  unequipItemToInventory(itemSlot: ItemSlot): boolean {
+    const item = this.unequipItem(itemSlot);
     if (!item) return false;
 
     this.addItem(item);
     return true;
   }
 
-  private getSlotForItemType(itemType: ItemType): keyof EquippedItems {
-    switch (itemType) {
-      case ItemType.HELMET:
+  private getSlotForItemSlot(itemSlot: ItemSlot): keyof EquippedItems {
+    switch (itemSlot) {
+      case ItemSlot.HELMET:
         return SLOT_HELMET as keyof EquippedItems;
-      case ItemType.ARMOR:
+      case ItemSlot.ARMOR:
         return SLOT_ARMOR as keyof EquippedItems;
-      case ItemType.LEGS:
+      case ItemSlot.LEGS:
         return SLOT_LEGS as keyof EquippedItems;
-      case ItemType.RIGHT_ARM:
+      case ItemSlot.RIGHT_ARM:
         return SLOT_RIGHT_ARM as keyof EquippedItems;
-      case ItemType.LEFT_ARM:
+      case ItemSlot.LEFT_ARM:
         return SLOT_LEFT_ARM as keyof EquippedItems;
       default:
-        throw new Error(`Unknown item type: ${itemType}`);
+        throw new Error(`Unknown item slot: ${itemSlot}`);
     }
   }
 
@@ -187,7 +187,7 @@ export class GameState {
       new Item(
         ID_HELMET_1,
         ITEM_IRON_HELMET,
-        ItemType.HELMET,
+        ItemSlot.HELMET,
         ItemRarity.COMMON,
         { defense: 5, health: 10 },
         '🪖',
@@ -196,7 +196,7 @@ export class GameState {
       new Item(
         ID_HELMET_2,
         ITEM_DRAGON_SCALE_HELMET,
-        ItemType.HELMET,
+        ItemSlot.HELMET,
         ItemRarity.EPIC,
         { defense: 15, health: 25, mana: 10 },
         '👑',
@@ -205,7 +205,7 @@ export class GameState {
       new Item(
         ID_ARMOR_1,
         ITEM_LEATHER_ARMOR,
-        ItemType.ARMOR,
+        ItemSlot.ARMOR,
         ItemRarity.COMMON,
         { defense: 8, health: 15 },
         '🦺',
@@ -214,7 +214,7 @@ export class GameState {
       new Item(
         ID_ARMOR_2,
         ITEM_MYSTICAL_ROBES,
-        ItemType.ARMOR,
+        ItemSlot.ARMOR,
         ItemRarity.RARE,
         { defense: 12, health: 20, mana: 30 },
         '👘',
@@ -223,7 +223,7 @@ export class GameState {
       new Item(
         ID_LEGS_1,
         ITEM_LEATHER_PANTS,
-        ItemType.LEGS,
+        ItemSlot.LEGS,
         ItemRarity.COMMON,
         { defense: 8 },
         '👖',
@@ -232,7 +232,7 @@ export class GameState {
       new Item(
         ID_LEGS_2,
         ITEM_ENCHANTED_LEGGINGS,
-        ItemType.LEGS,
+        ItemSlot.LEGS,
         ItemRarity.LEGENDARY,
         { defense: 25, mana: 10 },
         '✨',
@@ -241,7 +241,7 @@ export class GameState {
       new Item(
         ID_RIGHT_ARM_1,
         ITEM_IRON_GAUNTLETS,
-        ItemType.RIGHT_ARM,
+        ItemSlot.RIGHT_ARM,
         ItemRarity.UNCOMMON,
         { attack: 5, defense: 3 },
         '🧤',
@@ -250,7 +250,7 @@ export class GameState {
       new Item(
         ID_LEFT_ARM_1,
         ITEM_SHIELD_OF_VALOR,
-        ItemType.LEFT_ARM,
+        ItemSlot.LEFT_ARM,
         ItemRarity.RARE,
         { defense: 20, health: 15 },
         '🛡️',
@@ -259,7 +259,7 @@ export class GameState {
       new Item(
         ID_LEFT_ARM_2,
         ITEM_ARCANE_BRACERS,
-        ItemType.LEFT_ARM,
+        ItemSlot.LEFT_ARM,
         ItemRarity.EPIC,
         { defense: 8, mana: 25, attack: 5 },
         '💎',

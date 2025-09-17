@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { GameState, Item, ItemType } from '$lib/game';
+  import { GameState, Item, ItemSlot } from '$lib/game';
   import EquipmentSlot from './equipment-slot.svelte';
 
   interface Props {
@@ -12,8 +12,8 @@
     gameState.equipItemFromInventory(item.id);
   }
 
-  function handleUnequipItem(itemType: ItemType) {
-    gameState.unequipItemToInventory(itemType);
+  function handleUnequipItem(itemSlot: ItemSlot) {
+    gameState.unequipItemToInventory(itemSlot);
   }
 </script>
 
@@ -24,40 +24,40 @@
     <!-- Top row: Helmet -->
     <div></div>
     <EquipmentSlot
-      slotType={ItemType.HELMET}
+      slotType={ItemSlot.HELMET}
       item={gameState.equipped.helmet}
       onDrop={handleEquipItem}
-      onRemove={() => handleUnequipItem(ItemType.HELMET)}
+      onRemove={() => handleUnequipItem(ItemSlot.HELMET)}
     />
     <div></div>
 
     <!-- Middle row: Right Arm, Armor, Left Arm -->
     <EquipmentSlot
-      slotType={ItemType.RIGHT_ARM}
+      slotType={ItemSlot.RIGHT_ARM}
       item={gameState.equipped.right_arm}
       onDrop={handleEquipItem}
-      onRemove={() => handleUnequipItem(ItemType.RIGHT_ARM)}
+      onRemove={() => handleUnequipItem(ItemSlot.RIGHT_ARM)}
     />
     <EquipmentSlot
-      slotType={ItemType.ARMOR}
+      slotType={ItemSlot.ARMOR}
       item={gameState.equipped.armor}
       onDrop={handleEquipItem}
-      onRemove={() => handleUnequipItem(ItemType.ARMOR)}
+      onRemove={() => handleUnequipItem(ItemSlot.ARMOR)}
     />
     <EquipmentSlot
-      slotType={ItemType.LEFT_ARM}
+      slotType={ItemSlot.LEFT_ARM}
       item={gameState.equipped.left_arm}
       onDrop={handleEquipItem}
-      onRemove={() => handleUnequipItem(ItemType.LEFT_ARM)}
+      onRemove={() => handleUnequipItem(ItemSlot.LEFT_ARM)}
     />
 
     <!-- Bottom row: Sword -->
     <div></div>
     <EquipmentSlot
-      slotType={ItemType.LEGS}
+      slotType={ItemSlot.LEGS}
       item={gameState.equipped.legs}
       onDrop={handleEquipItem}
-      onRemove={() => handleUnequipItem(ItemType.LEGS)}
+      onRemove={() => handleUnequipItem(ItemSlot.LEGS)}
     />
     <div></div>
   </div>

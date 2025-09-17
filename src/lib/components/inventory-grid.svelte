@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { GameState } from '$lib/game';
-  import { ItemType, ItemRarity } from '$lib/game';
+  import { ItemSlot, ItemRarity } from '$lib/game';
   import ItemCard from './item-card.svelte';
   import InventoryFilters from './inventory-filters.svelte';
 
@@ -10,22 +10,22 @@
 
   let { gameState }: Props = $props();
 
-  let selectedType = $state<ItemType | undefined>(undefined);
+  let selectedSlot = $state<ItemSlot | undefined>(undefined);
   let selectedRarity = $state<ItemRarity | undefined>(undefined);
 
   let filteredItems = $derived(
-    gameState.getFilteredItems(selectedType, selectedRarity)
+    gameState.getFilteredItems(selectedSlot, selectedRarity)
   );
 
-  let availableTypes = $derived(gameState.getAvailableTypes());
+  let availableSlots = $derived(gameState.getAvailableSlots());
   let availableRarities = $derived(gameState.getAvailableRarities());
 
   function handleItemClick(itemId: string) {
     gameState.equipItemFromInventory(itemId);
   }
 
-  function handleTypeChange(type?: ItemType) {
-    selectedType = type;
+  function handleSlotChange(slot?: ItemSlot) {
+    selectedSlot = slot;
   }
 
   function handleRarityChange(rarity?: ItemRarity) {
@@ -38,11 +38,11 @@
 
   {#if gameState.inventorySize > 0}
     <InventoryFilters
-      {selectedType}
+      selectedSlot={selectedSlot}
       {selectedRarity}
-      {availableTypes}
+      availableSlots={availableSlots}
       {availableRarities}
-      onTypeChange={handleTypeChange}
+      onSlotChange={handleSlotChange}
       onRarityChange={handleRarityChange}
     />
   {/if}

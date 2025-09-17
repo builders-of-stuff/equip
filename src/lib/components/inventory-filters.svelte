@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { ItemType, ItemRarity } from '$lib/game';
+  import { ItemSlot, ItemRarity } from '$lib/game';
   import {
     DropdownMenu,
     DropdownMenuContent,
@@ -9,25 +9,25 @@
   import { ChevronDown } from 'lucide-svelte';
 
   interface Props {
-    selectedType?: ItemType;
+    selectedSlot?: ItemSlot;
     selectedRarity?: ItemRarity;
-    availableTypes: ItemType[];
+    availableSlots: ItemSlot[];
     availableRarities: ItemRarity[];
-    onTypeChange: (type?: ItemType) => void;
+    onSlotChange: (slot?: ItemSlot) => void;
     onRarityChange: (rarity?: ItemRarity) => void;
   }
 
   let {
-    selectedType,
+    selectedSlot,
     selectedRarity,
-    availableTypes,
+    availableSlots,
     availableRarities,
-    onTypeChange,
+    onSlotChange,
     onRarityChange
   }: Props = $props();
 
-  function getTypeDisplayName(type: ItemType): string {
-    return type.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
+  function getSlotDisplayName(slot: ItemSlot): string {
+    return slot.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase());
   }
 
   function getRarityDisplayName(rarity: ItemRarity): string {
@@ -41,22 +41,22 @@
     <DropdownMenuTrigger
       class="flex items-center gap-2 rounded-lg border border-gray-600 bg-gray-800 px-3 py-2 text-sm text-white hover:bg-gray-700"
     >
-      {selectedType ? getTypeDisplayName(selectedType) : 'All Types'}
+      {selectedSlot ? getSlotDisplayName(selectedSlot) : 'All Slots'}
       <ChevronDown class="h-4 w-4" />
     </DropdownMenuTrigger>
     <DropdownMenuContent class="w-48">
       <DropdownMenuItem
-        onclick={() => onTypeChange(undefined)}
-        class={!selectedType ? 'bg-gray-700' : ''}
+        onclick={() => onSlotChange(undefined)}
+        class={!selectedSlot ? 'bg-gray-700' : ''}
       >
-        All Types
+        All Slots
       </DropdownMenuItem>
-      {#each availableTypes as type (type)}
+      {#each availableSlots as slot (slot)}
         <DropdownMenuItem
-          onclick={() => onTypeChange(type)}
-          class={selectedType === type ? 'bg-gray-700' : ''}
+          onclick={() => onSlotChange(slot)}
+          class={selectedSlot === slot ? 'bg-gray-700' : ''}
         >
-          {getTypeDisplayName(type)}
+          {getSlotDisplayName(slot)}
         </DropdownMenuItem>
       {/each}
     </DropdownMenuContent>

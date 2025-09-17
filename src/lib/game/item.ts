@@ -1,4 +1,4 @@
-export enum ItemType {
+export enum ItemSlot {
   HELMET = 'helmet',
   ARMOR = 'armor',
   LEGS = 'legs',
@@ -24,7 +24,7 @@ export interface ItemStats {
 export class Item {
   id: string;
   name: string;
-  type: ItemType;
+  slot: ItemSlot;
   rarity: ItemRarity;
   stats: ItemStats;
   icon: string;
@@ -33,7 +33,7 @@ export class Item {
   constructor(
     id: string,
     name: string,
-    type: ItemType,
+    slot: ItemSlot,
     rarity: ItemRarity,
     stats: ItemStats,
     icon: string,
@@ -41,7 +41,7 @@ export class Item {
   ) {
     this.id = id;
     this.name = name;
-    this.type = type;
+    this.slot = slot;
     this.rarity = rarity;
     this.stats = stats;
     this.icon = icon;
