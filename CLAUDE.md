@@ -64,3 +64,8 @@ Test files follow these patterns:
 - ESLint with TypeScript, Svelte, and Prettier configurations
 - `no-undef` rule disabled for TypeScript projects (per typescript-eslint recommendations)
 - Prettier for code formatting with Svelte and TailwindCSS plugins
+- Allows use of `any` type and doesn't error on unused variables
+
+## Naming Conventions
+
+- Files and folders use kebab-case (e.g., `my-component.svelte`, `utils/date-helpers.ts`)
