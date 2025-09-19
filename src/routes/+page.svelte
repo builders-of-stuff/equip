@@ -26,12 +26,16 @@
         walletAdapter.suiClient,
         walletAdapter.currentAccount.address
       );
+
+      console.log('Fetched character:', character);
       gameState.loadCharacter(character);
 
       const items = await fetchItems(
         walletAdapter.suiClient,
         walletAdapter.currentAccount.address
       );
+
+      console.log('Fetched items:', items);
       gameState.loadItems(items);
 
       if (options.setInitialDataFlag) {

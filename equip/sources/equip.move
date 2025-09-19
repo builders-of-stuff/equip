@@ -1,5 +1,7 @@
 module equip::equip;
 
+use sui::event;
+
 const IRON_HELMET: u64 = 0;
 const DRAGON_SCALE_HELMET: u64 = 1;
 const LEATHER_ARMOR: u64 = 2;
@@ -28,6 +30,17 @@ public struct Item has key, store {
     `type`: u64,
     slot: u64,
     stats: ItemStats,
+}
+
+public struct ItemCreatedEvent has copy, drop {
+    item_id: object::ID,
+    item_type: u64,
+    slot: u64,
+    attack: u64,
+    defense: u64,
+    health: u64,
+    mana: u64,
+    creator: address,
 }
 
 public struct Character has key, store {
@@ -67,6 +80,16 @@ public fun create_starter_items(
             mana: 0,
         },
     };
+    event::emit(ItemCreatedEvent {
+        item_id: object::id(&iron_helmet),
+        item_type: IRON_HELMET,
+        slot: SLOT_HELMET,
+        attack: 0,
+        defense: 5,
+        health: 10,
+        mana: 0,
+        creator: tx_context::sender(ctx),
+    });
     let dragon_scale_helmet = Item {
         id: object::new(ctx),
         `type`: DRAGON_SCALE_HELMET,
@@ -78,6 +101,16 @@ public fun create_starter_items(
             mana: 10,
         },
     };
+    event::emit(ItemCreatedEvent {
+        item_id: object::id(&dragon_scale_helmet),
+        item_type: DRAGON_SCALE_HELMET,
+        slot: SLOT_HELMET,
+        attack: 0,
+        defense: 15,
+        health: 25,
+        mana: 10,
+        creator: tx_context::sender(ctx),
+    });
     let leather_armor = Item {
         id: object::new(ctx),
         `type`: LEATHER_ARMOR,
@@ -89,6 +122,16 @@ public fun create_starter_items(
             mana: 0,
         },
     };
+    event::emit(ItemCreatedEvent {
+        item_id: object::id(&leather_armor),
+        item_type: LEATHER_ARMOR,
+        slot: SLOT_ARMOR,
+        attack: 0,
+        defense: 8,
+        health: 15,
+        mana: 0,
+        creator: tx_context::sender(ctx),
+    });
     let mystical_robes = Item {
         id: object::new(ctx),
         `type`: MYSTICAL_ROBES,
@@ -100,6 +143,16 @@ public fun create_starter_items(
             mana: 30,
         },
     };
+    event::emit(ItemCreatedEvent {
+        item_id: object::id(&mystical_robes),
+        item_type: MYSTICAL_ROBES,
+        slot: SLOT_ARMOR,
+        attack: 0,
+        defense: 12,
+        health: 20,
+        mana: 30,
+        creator: tx_context::sender(ctx),
+    });
     let leather_pants = Item {
         id: object::new(ctx),
         `type`: LEATHER_PANTS,
@@ -111,6 +164,16 @@ public fun create_starter_items(
             mana: 0,
         },
     };
+    event::emit(ItemCreatedEvent {
+        item_id: object::id(&leather_pants),
+        item_type: LEATHER_PANTS,
+        slot: SLOT_LEGS,
+        attack: 0,
+        defense: 8,
+        health: 0,
+        mana: 0,
+        creator: tx_context::sender(ctx),
+    });
     let enchanted_leggings = Item {
         id: object::new(ctx),
         `type`: ENCHANTED_LEGGINGS,
@@ -122,6 +185,16 @@ public fun create_starter_items(
             mana: 10,
         },
     };
+    event::emit(ItemCreatedEvent {
+        item_id: object::id(&enchanted_leggings),
+        item_type: ENCHANTED_LEGGINGS,
+        slot: SLOT_LEGS,
+        attack: 0,
+        defense: 25,
+        health: 0,
+        mana: 10,
+        creator: tx_context::sender(ctx),
+    });
     let iron_gauntlets = Item {
         id: object::new(ctx),
         `type`: IRON_GAUNTLETS,
@@ -133,6 +206,16 @@ public fun create_starter_items(
             mana: 0,
         },
     };
+    event::emit(ItemCreatedEvent {
+        item_id: object::id(&iron_gauntlets),
+        item_type: IRON_GAUNTLETS,
+        slot: SLOT_RIGHT_ARM,
+        attack: 5,
+        defense: 3,
+        health: 0,
+        mana: 0,
+        creator: tx_context::sender(ctx),
+    });
     let shield_of_valor = Item {
         id: object::new(ctx),
         `type`: SHIELD_OF_VALOR,
@@ -144,6 +227,16 @@ public fun create_starter_items(
             mana: 0,
         },
     };
+    event::emit(ItemCreatedEvent {
+        item_id: object::id(&shield_of_valor),
+        item_type: SHIELD_OF_VALOR,
+        slot: SLOT_LEFT_ARM,
+        attack: 0,
+        defense: 20,
+        health: 15,
+        mana: 0,
+        creator: tx_context::sender(ctx),
+    });
     let arcane_bracers = Item {
         id: object::new(ctx),
         `type`: ARCANE_BRACERS,
@@ -155,6 +248,16 @@ public fun create_starter_items(
             mana: 25,
         },
     };
+    event::emit(ItemCreatedEvent {
+        item_id: object::id(&arcane_bracers),
+        item_type: ARCANE_BRACERS,
+        slot: SLOT_LEFT_ARM,
+        attack: 5,
+        defense: 8,
+        health: 0,
+        mana: 25,
+        creator: tx_context::sender(ctx),
+    });
 
     (
         iron_helmet,
@@ -296,4 +399,18 @@ public fun equip_character(
     vector::destroy_empty(items);
 
     return_items
+}
+
+public fun destroy_items(mut items: vector<Item>) {
+    let length = vector::length(&items);
+    let mut i = 0;
+
+    while (i < length) {
+        let item = vector::pop_back(&mut items);
+        let Item { id, `type`: _, slot: _, stats: _ } = item;
+        object::delete(id);
+        i = i + 1;
+    };
+
+    vector::destroy_empty(items);
 }

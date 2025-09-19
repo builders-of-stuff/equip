@@ -49,7 +49,10 @@ export const mintCharacterAndItems = async (walletAdapter: any) => {
 
   // Transfer character and items to user
   tx.transferObjects([character], walletAdapter.currentAccount.address);
-  tx.transferObjects([item1, item2, item3, item4, item5, item6, item7, item8, item9], walletAdapter.currentAccount.address);
+  tx.transferObjects(
+    [item1, item2, item3, item4, item5, item6, item7, item8, item9],
+    walletAdapter.currentAccount.address
+  );
 
   try {
     const { bytes, signature } = await walletAdapter.signTransaction(tx as any, {});
@@ -58,6 +61,8 @@ export const mintCharacterAndItems = async (walletAdapter: any) => {
       bytes,
       signature
     });
+
+    console.log('Executed Transaction:', executedTx);
 
     return executedTx;
   } catch (e) {
