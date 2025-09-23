@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Button } from './ui/button/index.js';
   import { testnetWalletAdapter as walletAdapter } from '@builders-of-stuff/svelte-sui-wallet-adapter';
-  import { mintCharacterAndItems } from '$lib/contracts/contract-tools.js';
+  import { mintCharacterAndItems } from '$lib/contracts/contract.tools.js';
   import { Loader2, Plus, Sword } from 'lucide-svelte';
   import type { GameState } from '$lib/game';
 

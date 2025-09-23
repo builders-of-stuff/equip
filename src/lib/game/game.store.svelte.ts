@@ -7,7 +7,7 @@ import {
   SLOT_RIGHT_ARM,
   SLOT_LEFT_ARM
 } from './constants.js';
-import type { SuiCharacter, SuiItem } from '../contracts/contract-tools.js';
+import type { SuiCharacter, SuiItem } from '../contracts/contract.tools.js';
 import { suiItemToItem, suiItemsToItems } from '../contracts/utils.js';
 
 export interface EquippedItems {

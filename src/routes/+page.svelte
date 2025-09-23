@@ -9,7 +9,7 @@
     fetchCharacter,
     fetchItems,
     deleteCharacter
-  } from '$lib/contracts/contract-tools.js';
+  } from '$lib/contracts/contract.tools.js';
   import { untrack } from 'svelte';
 
   const gameState = new GameState();

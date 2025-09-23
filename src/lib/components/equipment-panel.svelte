@@ -3,7 +3,7 @@
   import EquipmentSlot from './equipment-slot.svelte';
   import { Button } from './ui/button/index.js';
   import { testnetWalletAdapter as walletAdapter } from '@builders-of-stuff/svelte-sui-wallet-adapter';
-  import { equipCharacter } from '$lib/contracts/contract-tools.js';
+  import { equipCharacter } from '$lib/contracts/contract.tools.js';
   import { Loader2, Save, Trash } from 'lucide-svelte';
 
   interface Props {

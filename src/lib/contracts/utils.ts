@@ -1,5 +1,5 @@
 import { Item, ItemSlot, ItemRarity, type ItemStats } from '$lib/game/item.js';
-import type { SuiItem } from './contract-tools.js';
+import type { SuiItem } from './contract.tools.js';
 import {
   ITEM_TYPE_MAP,
   SLOT_MAP,
@@ -115,15 +115,7 @@ export function suiItemToItem(suiItem: SuiItem): Item {
     mana: suiItem.stats.mana || 0
   };
 
-  return new Item(
-    suiItem.objectId,
-    name,
-    itemSlot,
-    rarity,
-    stats,
-    icon,
-    description
-  );
+  return new Item(suiItem.objectId, name, itemSlot, rarity, stats, icon, description);
 }
 
 /**
