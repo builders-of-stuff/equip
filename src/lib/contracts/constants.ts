@@ -36,6 +36,11 @@ export const OBJECT_TYPES = {
   ITEM: `${PACKAGE_ID}::equip::Item`
 } as const;
 
+// Event Types
+export const EVENT_TYPES = {
+  ITEM_CREATED_EVENT: `${PACKAGE_ID}::equip::ItemCreatedEvent`
+} as const;
+
 // Item type to frontend mapping
 export const ITEM_TYPE_MAP = {
   [IRON_HELMET]: 'Iron Helmet',

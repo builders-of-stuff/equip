@@ -1,8 +1,7 @@
 import { Item, ItemSlot, ItemRarity, type ItemStats } from '$lib/game/item.js';
-import type { SuiItem } from './contract.tools.js';
+import type { SuiItem, SuiCharacter } from './contract.tools.js';
 import {
   ITEM_TYPE_MAP,
-  SLOT_MAP,
   IRON_HELMET,
   DRAGON_SCALE_HELMET,
   LEATHER_ARMOR,
@@ -16,7 +15,9 @@ import {
   SLOT_ARMOR,
   SLOT_LEGS,
   SLOT_RIGHT_ARM,
-  SLOT_LEFT_ARM
+  SLOT_LEFT_ARM,
+  OBJECT_TYPES,
+  EVENT_TYPES
 } from './constants.js';
 
 // Item icons mapping
@@ -124,3 +125,98 @@ export function suiItemToItem(suiItem: SuiItem): Item {
 export function suiItemsToItems(suiItems: SuiItem[]): Item[] {
   return suiItems.map(suiItemToItem);
 }
+
+/**
+ * Parse character data from transaction response
+ */
+export function parseCharacterFromTxResponse(executedTx: any): SuiCharacter | null {
+  try {
+    // Look for created Character object in objectChanges
+    const characterChange = executedTx.objectChanges?.find(
+      (change: any) =>
+        change.type === 'created' && change.objectType === OBJECT_TYPES.CHARACTER
+    );
+
+    if (!characterChange) {
+      console.warn('No character found in transaction response');
+      return null;
+    }
+
+    // Return a basic character object with just the ID
+    // Equipment will be empty since it's a newly created character
+    return {
+      objectId: characterChange.objectId,
+      helmet: undefined,
+      armor: undefined,
+      right_arm: undefined,
+      left_arm: undefined,
+      legs: undefined
+    };
+  } catch (error) {
+    console.error('Failed to parse character from transaction response:', error);
+    return null;
+  }
+}
+
+// const executedTx = {
+//   ...,
+//   events: [
+//     {
+//       ...,
+//       parsedJson: {
+//         attack: "0",
+//         health: "10",
+//         slot: "0",
+//         item_id: "0x592...e4",
+//         ...
+//       },
+//       type: "0x33...::equip::ItemCreatedEvent"
+//     }
+//   ]
+// }
+
+/**
+ * Parse items data from transaction response
+ */
+export function parseItemsFromTxResponse(executedTx: any): SuiItem[] {
+  try {
+    const items: SuiItem[] = [];
+    const events = executedTx.events || [];
+
+    for (const event of events) {
+      // Check if this is an ItemCreatedEvent
+      if (event.type === EVENT_TYPES.ITEM_CREATED_EVENT && event.parsedJson) {
+        const json = event.parsedJson;
+
+        // Validate that all required fields are present
+        if (
+          json.item_id &&
+          typeof json.item_type === 'string' &&
+          typeof json.slot === 'string' &&
+          typeof json.attack === 'string' &&
+          typeof json.defense === 'string' &&
+          typeof json.health === 'string' &&
+          typeof json.mana === 'string'
+        ) {
+          items.push({
+            objectId: json.item_id,
+            type: parseInt(json.item_type),
+            slot: parseInt(json.slot),
+            stats: {
+              attack: parseInt(json.attack),
+              defense: parseInt(json.defense),
+              health: parseInt(json.health),
+              mana: parseInt(json.mana)
+            }
+          });
+        }
+      }
+    }
+
+    return items;
+  } catch (error) {
+    console.error('Failed to parse items from transaction response:', error);
+    return [];
+  }
+}
+

@@ -1,6 +1,7 @@
 import { Transaction } from '@mysten/sui/transactions';
-import { PACKAGE_ID, CONTRACT_FUNCTIONS, OBJECT_TYPES } from './constants.js';
+import { CONTRACT_FUNCTIONS, OBJECT_TYPES } from './constants.js';
 import { walletAdapter } from '../wallet/index.js';
+import { parseCharacterFromTxResponse, parseItemsFromTxResponse } from './utils.js';
 
 export interface SuiItemStats {
   attack: number;
@@ -25,10 +26,16 @@ export interface SuiCharacter {
   legs?: SuiItem;
 }
 
+export interface MintResult {
+  character: SuiCharacter | null;
+  items: SuiItem[];
+  executedTx: any;
+}
+
 /**
  * Mint a new character and starter items
  */
-export const mintCharacterAndItems = async () => {
+export const mintCharacterAndItems = async (): Promise<MintResult> => {
   if (!walletAdapter?.currentAccount?.address) {
     throw new Error('Wallet not connected');
   }
@@ -65,7 +72,15 @@ export const mintCharacterAndItems = async () => {
 
     console.log('Executed Transaction:', executedTx);
 
-    return executedTx;
+    // Parse character and items from transaction response
+    const character = parseCharacterFromTxResponse(executedTx);
+    const items = parseItemsFromTxResponse(executedTx);
+
+    return {
+      character,
+      items,
+      executedTx
+    };
   } catch (e) {
     console.error('Failed to mint character and items:', e);
     throw e;

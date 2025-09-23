@@ -14,7 +14,8 @@ import {
   equipCharacter,
   deleteCharacter as deleteCharacterContract,
   fetchCharacter,
-  fetchItems
+  fetchItems,
+  type MintResult
 } from '../contracts/contract.tools.js';
 import { walletAdapter } from '../wallet/index.js';
 
@@ -315,17 +316,24 @@ export class GameState {
   /**
    * Mint a new character and starter items
    */
-  async mintCharacterAndItems(): Promise<void> {
+  async mintCharacterAndItemsG(): Promise<void> {
     if (!walletAdapter?.currentAccount?.address) {
       throw new Error('Wallet not connected');
     }
 
     this.setMinting(true);
     try {
-      await mintCharacterAndItems();
+      const result: MintResult = await mintCharacterAndItems();
 
-      // After successful mint, refetch character and items data
-      await this.refreshCharacterData();
+      // Use the parsed data from the transaction response instead of refetching
+      if (result.character && result.items) {
+        this.loadCharacter(result.character);
+        this.loadItems(result.items);
+      } else {
+        // Fallback to refreshing data if parsing failed
+        console.warn('Failed to parse minted data, falling back to refresh');
+        await this.refreshCharacterData();
+      }
     } finally {
       this.setMinting(false);
     }
