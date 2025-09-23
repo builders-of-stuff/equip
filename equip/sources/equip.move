@@ -318,11 +318,10 @@ public fun delete_character(character: Character) {
 
 public fun equip_character(
     character: &mut Character,
-    items: vector<Item>,
+    mut items: vector<Item>,
     ctx: &mut TxContext,
 ) {
     let mut return_items = vector::empty<Item>();
-    let mut items = items;
 
     // Unequip all currently equipped items and add them to return vector
     if (option::is_some(&character.helmet)) {
@@ -359,37 +358,8 @@ public fun equip_character(
         let slot = item.slot;
 
         if (slot == SLOT_HELMET) {
-            // If helmet slot is already filled by a previous item in this batch, return the old one
-            if (option::is_some(&character.helmet)) {
-                let old_item = option::extract(&mut character.helmet);
-                vector::push_back(&mut return_items, old_item);
-            };
             option::fill(&mut character.helmet, item);
-        } else if (slot == SLOT_ARMOR) {
-            if (option::is_some(&character.armor)) {
-                let old_item = option::extract(&mut character.armor);
-                vector::push_back(&mut return_items, old_item);
-            };
-            option::fill(&mut character.armor, item);
-        } else if (slot == SLOT_RIGHT_ARM) {
-            if (option::is_some(&character.right_arm)) {
-                let old_item = option::extract(&mut character.right_arm);
-                vector::push_back(&mut return_items, old_item);
-            };
-            option::fill(&mut character.right_arm, item);
-        } else if (slot == SLOT_LEFT_ARM) {
-            if (option::is_some(&character.left_arm)) {
-                let old_item = option::extract(&mut character.left_arm);
-                vector::push_back(&mut return_items, old_item);
-            };
-            option::fill(&mut character.left_arm, item);
-        } else if (slot == SLOT_LEGS) {
-            if (option::is_some(&character.legs)) {
-                let old_item = option::extract(&mut character.legs);
-                vector::push_back(&mut return_items, old_item);
-            };
-            option::fill(&mut character.legs, item);
-        } else {
+        } else if (slot == SLOT_ARMOR) { option::fill(&mut character.armor, item); } else if (slot == SLOT_RIGHT_ARM) { option::fill(&mut character.right_arm, item); } else if (slot == SLOT_LEFT_ARM) { option::fill(&mut character.left_arm, item); } else if (slot == SLOT_LEGS) { option::fill(&mut character.legs, item); } else {
             // Unknown slot, return the item
             vector::push_back(&mut return_items, item);
         };

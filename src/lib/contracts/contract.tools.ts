@@ -342,28 +342,54 @@ export const destroyItems = async (itemIds: string[]) => {
 };
 
 /**
- * Helper function to parse item from Move Option type
+ * Helper function to parse item from onchain data
  */
-function parseItemFromOption(option: any): SuiItem | undefined {
-  if (
-    !option ||
-    !option.fields ||
-    !option.fields.vec ||
-    option.fields.vec.length === 0
-  ) {
+function parseItemFromOption(itemData: any): SuiItem | undefined {
+  // Handle null/undefined cases (no item equipped)
+  if (!itemData || itemData === null) {
     return undefined;
   }
 
-  const item = option.fields.vec[0].fields;
-  return {
-    objectId: item.id.id,
-    type: parseInt(item.type),
-    slot: parseInt(item.slot),
-    stats: {
-      attack: parseInt(item.stats.fields.attack),
-      defense: parseInt(item.stats.fields.defense),
-      health: parseInt(item.stats.fields.health),
-      mana: parseInt(item.stats.fields.mana)
-    }
-  };
+  // Handle direct item structure as shown in the example comment:
+  // helmet: {
+  //   id: '0x123...',
+  //   slot: "0",
+  //   stats: {
+  //     attack: "1",
+  //     defense: "1",
+  //     health: "1",
+  //     ...
+  //   }
+  // }
+  if (itemData.id && itemData.slot !== undefined && itemData.stats) {
+    return {
+      objectId: itemData.id,
+      type: parseInt(itemData.type || '0'),
+      slot: parseInt(itemData.slot),
+      stats: {
+        attack: parseInt(itemData.stats.attack || '0'),
+        defense: parseInt(itemData.stats.defense || '0'),
+        health: parseInt(itemData.stats.health || '0'),
+        mana: parseInt(itemData.stats.mana || '0')
+      }
+    };
+  }
+
+  // Handle Move Option type structure (fallback for other data formats)
+  if (itemData.fields && itemData.fields.vec && itemData.fields.vec.length > 0) {
+    const item = itemData.fields.vec[0].fields;
+    return {
+      objectId: item.id.id,
+      type: parseInt(item.type),
+      slot: parseInt(item.slot),
+      stats: {
+        attack: parseInt(item.stats.fields.attack),
+        defense: parseInt(item.stats.fields.defense),
+        health: parseInt(item.stats.fields.health),
+        mana: parseInt(item.stats.fields.mana)
+      }
+    };
+  }
+
+  return undefined;
 }

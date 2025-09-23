@@ -1,12 +1,5 @@
 import { SvelteSet } from 'svelte/reactivity';
 import { Item, ItemSlot, ItemRarity, type ItemStats } from './item.js';
-import {
-  SLOT_HELMET,
-  SLOT_ARMOR,
-  SLOT_LEGS,
-  SLOT_RIGHT_ARM,
-  SLOT_LEFT_ARM
-} from './constants.js';
 import type { SuiCharacter, SuiItem } from '../contracts/contract.tools.js';
 import { suiItemToItem, suiItemsToItems } from '../contracts/utils.js';
 import {
@@ -223,15 +216,15 @@ export class GameState {
   private getSlotForItemSlot(itemSlot: ItemSlot): keyof EquippedItems {
     switch (itemSlot) {
       case ItemSlot.HELMET:
-        return SLOT_HELMET as keyof EquippedItems;
+        return 'helmet';
       case ItemSlot.ARMOR:
-        return SLOT_ARMOR as keyof EquippedItems;
+        return 'armor';
       case ItemSlot.LEGS:
-        return SLOT_LEGS as keyof EquippedItems;
+        return 'legs';
       case ItemSlot.RIGHT_ARM:
-        return SLOT_RIGHT_ARM as keyof EquippedItems;
+        return 'right_arm';
       case ItemSlot.LEFT_ARM:
-        return SLOT_LEFT_ARM as keyof EquippedItems;
+        return 'left_arm';
       default:
         throw new Error(`Unknown item slot: ${itemSlot}`);
     }
@@ -363,6 +356,9 @@ export class GameState {
 
       this.markChangesSaved();
 
+      // Wait for blockchain indexer to process the transaction
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
       // Refresh data to get updated state from blockchain
       await this.refreshCharacterData();
     } finally {
@@ -427,6 +423,9 @@ export class GameState {
       // Fetch character and items data from blockchain
       const character = await fetchCharacter(walletAdapter.currentAccount.address);
       const items = await fetchItems(walletAdapter.currentAccount.address);
+
+      console.log('Fetched character:', character);
+      console.log('Fetched items:', items);
 
       this.loadCharacter(character);
       this.loadItems(items);
