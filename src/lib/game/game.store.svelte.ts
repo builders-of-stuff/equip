@@ -425,14 +425,8 @@ export class GameState {
 
     try {
       // Fetch character and items data from blockchain
-      const character = await fetchCharacter(
-        walletAdapter.suiClient,
-        walletAdapter.currentAccount.address
-      );
-      const items = await fetchItems(
-        walletAdapter.suiClient,
-        walletAdapter.currentAccount.address
-      );
+      const character = await fetchCharacter(walletAdapter.currentAccount.address);
+      const items = await fetchItems(walletAdapter.currentAccount.address);
 
       this.loadCharacter(character);
       this.loadItems(items);

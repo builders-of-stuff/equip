@@ -1,7 +1,17 @@
 import { Transaction } from '@mysten/sui/transactions';
-import { CONTRACT_FUNCTIONS, OBJECT_TYPES } from './constants.js';
+import { SuiGraphQLClient } from '@mysten/sui/graphql';
+import { graphql } from '@mysten/sui/graphql/schemas/latest';
+import { CONTRACT_FUNCTIONS, OBJECT_TYPES, PACKAGE_ID } from './constants.js';
 import { walletAdapter } from '../wallet/index.js';
 import { parseCharacterFromTxResponse, parseItemsFromTxResponse } from './utils.js';
+
+const gqlClient = new SuiGraphQLClient({
+  // alpha endpoints
+  // url: 'https://sui-testnet.mystenlabs.com/graphql'
+
+  // beta endpoints
+  url: 'https://graphql.testnet.sui.io/graphql'
+});
 
 export interface SuiItemStats {
   attack: number;
@@ -91,37 +101,51 @@ export const mintCharacterAndItems = async (): Promise<MintResult> => {
  * Fetch user's character from the blockchain
  */
 export const fetchCharacter = async (
-  suiClient: any,
   walletAddress: string
 ): Promise<SuiCharacter | null> => {
   try {
-    const ownedObjects = await suiClient.getOwnedObjects({
-      owner: walletAddress,
-      filter: {
-        StructType: OBJECT_TYPES.CHARACTER
-      },
-      options: {
-        showContent: true,
-        showDisplay: true,
-        showType: true
+    const query = graphql(`
+      query GetCharacter($owner: SuiAddress!, $type: String!) {
+        objects(first: 1, filter: { owner: $owner, type: $type }) {
+          edges {
+            node {
+              address
+              asMoveObject {
+                contents {
+                  json
+                }
+              }
+            }
+          }
+        }
+      }
+    `);
+
+    const result = await gqlClient.query({
+      query,
+      variables: {
+        owner: walletAddress,
+        type: OBJECT_TYPES.CHARACTER
       }
     });
 
-    if (!ownedObjects.data || ownedObjects.data.length === 0) {
+    if (!result.data?.objects?.edges || result.data.objects.edges.length === 0) {
       return null;
     }
 
     // Get the first character (assuming one character per wallet)
-    const characterObject = ownedObjects.data[0];
-    const content = characterObject.data?.content as any;
+    const characterNode = result.data.objects.edges[0].node;
+    const moveObject = characterNode?.asMoveObject;
+    const contents = moveObject?.contents;
+    const json = contents?.json;
 
-    if (!content || content.dataType !== 'moveObject') {
+    if (!json || typeof json !== 'object') {
       return null;
     }
 
-    const fields = content.fields;
+    const fields = json as any;
     const character: SuiCharacter = {
-      objectId: characterObject.data!.objectId,
+      objectId: characterNode.address,
       helmet: fields.helmet ? parseItemFromOption(fields.helmet) : undefined,
       armor: fields.armor ? parseItemFromOption(fields.armor) : undefined,
       right_arm: fields.right_arm ? parseItemFromOption(fields.right_arm) : undefined,
@@ -139,43 +163,65 @@ export const fetchCharacter = async (
 /**
  * Fetch user's items from the blockchain
  */
-export const fetchItems = async (
-  suiClient: any,
-  walletAddress: string
-): Promise<SuiItem[]> => {
+export const fetchItems = async (walletAddress: string): Promise<SuiItem[]> => {
   try {
-    const ownedObjects = await suiClient.getOwnedObjects({
-      owner: walletAddress,
-      filter: {
-        StructType: OBJECT_TYPES.ITEM
-      },
-      options: {
-        showContent: true,
-        showDisplay: true,
-        showType: true
+    const query = graphql(`
+      query GetItems($owner: SuiAddress!, $type: String!) {
+        objects(first: 50, filter: { owner: $owner, type: $type }) {
+          edges {
+            node {
+              address
+              asMoveObject {
+                contents {
+                  json
+                }
+              }
+            }
+          }
+        }
+      }
+    `);
+
+    const result = await gqlClient.query({
+      query,
+      variables: {
+        owner: walletAddress,
+        type: OBJECT_TYPES.ITEM
       }
     });
 
-    if (!ownedObjects.data) {
+    if (!result.data?.objects?.edges) {
       return [];
     }
 
     const items: SuiItem[] = [];
-    for (const object of ownedObjects.data) {
-      const content = object.data?.content as any;
-      if (content && content.dataType === 'moveObject') {
-        const fields = content.fields;
-        items.push({
-          objectId: object.data!.objectId,
-          type: parseInt(fields.type),
-          slot: parseInt(fields.slot),
-          stats: {
-            attack: parseInt(fields.stats.fields.attack),
-            defense: parseInt(fields.stats.fields.defense),
-            health: parseInt(fields.stats.fields.health),
-            mana: parseInt(fields.stats.fields.mana)
-          }
-        });
+    for (const edge of result.data.objects.edges) {
+      try {
+        const node = edge.node;
+        const moveObject = node?.asMoveObject;
+        const contents = moveObject?.contents;
+        const json = contents?.json;
+
+        if (json && typeof json === 'object') {
+          const fields = json as any;
+
+          console.log('fields: ', fields);
+
+          items.push({
+            objectId: node.address,
+            type: parseInt(fields.type),
+            slot: parseInt(fields.slot),
+            stats: {
+              attack: parseInt(fields.stats.attack),
+              defense: parseInt(fields.stats.defense),
+              health: parseInt(fields.stats.health),
+              mana: parseInt(fields.stats.mana)
+            }
+          });
+        }
+      } catch (parseError) {
+        console.warn('Failed to parse item from GraphQL response:', parseError);
+        // Continue processing other items even if one fails
       }
     }
 
@@ -189,10 +235,7 @@ export const fetchItems = async (
 /**
  * Equip items to character
  */
-export const equipCharacter = async (
-  characterId: string,
-  itemIds: string[]
-) => {
+export const equipCharacter = async (characterId: string, itemIds: string[]) => {
   if (!walletAdapter?.currentAccount?.address) {
     throw new Error('Wallet not connected');
   }
