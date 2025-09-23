@@ -144,7 +144,7 @@ export function parseCharacterFromTxResponse(executedTx: any): SuiCharacter | nu
 
     // Return a basic character object with just the ID
     // Equipment will be empty since it's a newly created character
-    return {
+    const character = {
       objectId: characterChange.objectId,
       helmet: undefined,
       armor: undefined,
@@ -152,6 +152,8 @@ export function parseCharacterFromTxResponse(executedTx: any): SuiCharacter | nu
       left_arm: undefined,
       legs: undefined
     };
+
+    return character;
   } catch (error) {
     console.error('Failed to parse character from transaction response:', error);
     return null;
@@ -198,7 +200,7 @@ export function parseItemsFromTxResponse(executedTx: any): SuiItem[] {
           typeof json.health === 'string' &&
           typeof json.mana === 'string'
         ) {
-          items.push({
+          const item = {
             objectId: json.item_id,
             type: parseInt(json.item_type),
             slot: parseInt(json.slot),
@@ -208,7 +210,11 @@ export function parseItemsFromTxResponse(executedTx: any): SuiItem[] {
               health: parseInt(json.health),
               mana: parseInt(json.mana)
             }
-          });
+          };
+
+          items.push(item);
+        } else {
+          console.warn('Item event missing required fields:', json);
         }
       }
     }

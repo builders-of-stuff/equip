@@ -13,6 +13,7 @@ import {
   mintCharacterAndItems,
   equipCharacter,
   deleteCharacter as deleteCharacterContract,
+  destroyItems,
   fetchCharacter,
   fetchItems,
   type MintResult
@@ -44,6 +45,7 @@ export class GameState {
   #isSavingChanges = $state<boolean>(false);
   #isMinting = $state<boolean>(false);
   #isDeleting = $state<boolean>(false);
+  #isDeletingItems = $state<boolean>(false);
   #hasUnsavedChanges = $state<boolean>(false);
 
   constructor() {}
@@ -108,6 +110,10 @@ export class GameState {
     return this.#isDeleting;
   }
 
+  get isDeletingItems(): boolean {
+    return this.#isDeletingItems;
+  }
+
   get hasUnsavedChanges(): boolean {
     return this.#hasUnsavedChanges;
   }
@@ -118,7 +124,8 @@ export class GameState {
       this.#isLoadingItems ||
       this.#isSavingChanges ||
       this.#isMinting ||
-      this.#isDeleting
+      this.#isDeleting ||
+      this.#isDeletingItems
     );
   }
 
@@ -283,6 +290,10 @@ export class GameState {
     this.#isDeleting = deleting;
   }
 
+  setDeletingItems(deletingItems: boolean): void {
+    this.#isDeletingItems = deletingItems;
+  }
+
   /**
    * Mark changes as saved
    */
@@ -316,7 +327,7 @@ export class GameState {
   /**
    * Mint a new character and starter items
    */
-  async mintCharacterAndItemsG(): Promise<void> {
+  async mintCharacterAndItems(): Promise<void> {
     if (!walletAdapter?.currentAccount?.address) {
       throw new Error('Wallet not connected');
     }
@@ -325,14 +336,12 @@ export class GameState {
     try {
       const result: MintResult = await mintCharacterAndItems();
 
+      // console.log('Mint result:', result);
+
       // Use the already parsed character data (optimistic update)
       if (result.character && result.items) {
         this.loadCharacter(result.character);
         this.loadItems(result.items);
-      } else {
-        // Fallback to refreshing data if parsing failed
-        console.warn('Failed to parse minted data, falling back to refresh');
-        await this.refreshCharacterData();
       }
     } finally {
       this.setMinting(false);
@@ -375,6 +384,31 @@ export class GameState {
       this.clearAllData();
     } finally {
       this.setDeleting(false);
+    }
+  }
+
+  /**
+   * Delete all items in inventory
+   */
+  async deleteAllItems(): Promise<void> {
+    if (!walletAdapter?.currentAccount?.address) {
+      throw new Error('Wallet not connected');
+    }
+
+    if (this.#items.length === 0) {
+      throw new Error('No items to delete');
+    }
+
+    const itemIds = this.#items.map((item) => item.id);
+
+    this.setDeletingItems(true);
+    try {
+      await destroyItems(itemIds);
+
+      // Clear inventory locally immediately after successful blockchain call
+      this.clearInventory();
+    } finally {
+      this.setDeletingItems(false);
     }
   }
 

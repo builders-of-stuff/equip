@@ -260,6 +260,45 @@ export const deleteCharacter = async (characterId: string) => {
 };
 
 /**
+ * Destroy items
+ */
+export const destroyItems = async (itemIds: string[]) => {
+  if (!walletAdapter?.currentAccount?.address) {
+    throw new Error('Wallet not connected');
+  }
+
+  if (itemIds.length === 0) {
+    throw new Error('No items to destroy');
+  }
+
+  const tx = new Transaction();
+
+  // Call destroy_items function
+  tx.moveCall({
+    target: CONTRACT_FUNCTIONS.DESTROY_ITEMS,
+    arguments: [
+      tx.makeMoveVec({
+        elements: itemIds.map((id: string) => tx.object(id))
+      })
+    ]
+  });
+
+  try {
+    const { bytes, signature } = await walletAdapter.signTransaction(tx as any, {});
+
+    const executedTx = await walletAdapter.executeTransaction({
+      bytes,
+      signature
+    });
+
+    return executedTx;
+  } catch (e) {
+    console.error('Failed to destroy items:', e);
+    throw e;
+  }
+};
+
+/**
  * Helper function to parse item from Move Option type
  */
 function parseItemFromOption(option: any): SuiItem | undefined {

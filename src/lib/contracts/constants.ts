@@ -27,7 +27,8 @@ export const CONTRACT_FUNCTIONS = {
   CREATE_CHARACTER: `${PACKAGE_ID}::equip::create_character`,
   CREATE_STARTER_ITEMS: `${PACKAGE_ID}::equip::create_starter_items`,
   EQUIP_CHARACTER: `${PACKAGE_ID}::equip::equip_character`,
-  DELETE_CHARACTER: `${PACKAGE_ID}::equip::delete_character`
+  DELETE_CHARACTER: `${PACKAGE_ID}::equip::delete_character`,
+  DESTROY_ITEMS: `${PACKAGE_ID}::equip::destroy_items`
 } as const;
 
 // Object Types
