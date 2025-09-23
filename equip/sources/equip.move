@@ -317,10 +317,11 @@ public fun delete_character(character: Character) {
 
 public fun equip_character(
     character: &mut Character,
-    mut items: vector<Item>,
+    items: vector<Item>,
     _ctx: &mut TxContext,
 ): vector<Item> {
     let mut return_items = vector::empty<Item>();
+    let mut items = items;
 
     // Unequip all currently equipped items and add them to return vector
     if (option::is_some(&character.helmet)) {

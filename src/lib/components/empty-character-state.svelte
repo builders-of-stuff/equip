@@ -6,10 +6,9 @@
 
   interface Props {
     gameState: GameState;
-    onMintSuccess?: () => void;
   }
 
-  let { gameState, onMintSuccess }: Props = $props();
+  let { gameState }: Props = $props();
 
   async function handleMintCharacter() {
     if (!walletAdapter?.currentAccount?.address) {
@@ -18,11 +17,6 @@
 
     try {
       await gameState.mintCharacterAndItems();
-
-      // Trigger success callback
-      if (onMintSuccess) {
-        onMintSuccess();
-      }
     } catch (error) {
       console.error('Failed to mint character:', error);
       // TODO: Show error toast/notification

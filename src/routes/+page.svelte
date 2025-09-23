@@ -71,7 +71,7 @@
   <main class="container mx-auto p-6">
     {#if !gameState.hasCharacter && !gameState.isLoadingCharacter}
       <!-- Empty State - No Character -->
-      <EmptyCharacterState {gameState} onMintSuccess={fetchAndLoadData} />
+      <EmptyCharacterState {gameState} />
     {:else if gameState.isLoadingCharacter}
       <!-- Loading State -->
       <div class="flex min-h-[400px] items-center justify-center">

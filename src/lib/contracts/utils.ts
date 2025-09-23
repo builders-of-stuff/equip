@@ -138,7 +138,10 @@ export function parseCharacterFromTxResponse(executedTx: any): SuiCharacter | nu
     );
 
     if (!characterChange) {
-      console.warn('No character found in transaction response');
+      console.warn('No character found in transaction response', {
+        objectChanges: executedTx.objectChanges,
+        expectedCharacterType: OBJECT_TYPES.CHARACTER
+      });
       return null;
     }
 
@@ -155,7 +158,9 @@ export function parseCharacterFromTxResponse(executedTx: any): SuiCharacter | nu
 
     return character;
   } catch (error) {
-    console.error('Failed to parse character from transaction response:', error);
+    console.error('Failed to parse character from transaction response:', error, {
+      executedTx: executedTx
+    });
     return null;
   }
 }
@@ -214,14 +219,25 @@ export function parseItemsFromTxResponse(executedTx: any): SuiItem[] {
 
           items.push(item);
         } else {
-          console.warn('Item event missing required fields:', json);
+          console.warn('Item event missing required fields:', {
+            json,
+            hasItemId: !!json.item_id,
+            typeOfItemType: typeof json.item_type,
+            typeOfSlot: typeof json.slot,
+            typeOfAttack: typeof json.attack,
+            typeOfDefense: typeof json.defense,
+            typeOfHealth: typeof json.health,
+            typeOfMana: typeof json.mana
+          });
         }
       }
     }
 
     return items;
   } catch (error) {
-    console.error('Failed to parse items from transaction response:', error);
+    console.error('Failed to parse items from transaction response:', error, {
+      executedTx: executedTx
+    });
     return [];
   }
 }

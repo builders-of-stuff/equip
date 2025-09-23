@@ -205,8 +205,6 @@ export const fetchItems = async (walletAddress: string): Promise<SuiItem[]> => {
         if (json && typeof json === 'object') {
           const fields = json as any;
 
-          console.log('fields: ', fields);
-
           items.push({
             objectId: node.address,
             type: parseInt(fields.type),
@@ -241,6 +239,8 @@ export const equipCharacter = async (characterId: string, itemIds: string[]) => 
   }
 
   const tx = new Transaction();
+
+  console.log('Equipping items:', itemIds, 'to character:', characterId);
 
   // Call equip_character function
   const [returnItems] = tx.moveCall({
