@@ -1,7 +1,6 @@
 <script lang="ts">
   import { Button } from './ui/button/index.js';
-  import { testnetWalletAdapter as walletAdapter } from '@builders-of-stuff/svelte-sui-wallet-adapter';
-  import { mintCharacterAndItems } from '$lib/contracts/contract.tools.js';
+  import { walletAdapter } from '$lib/wallet';
   import { Loader2, Plus, Sword } from 'lucide-svelte';
   import type { GameState } from '$lib/game';
 
@@ -18,22 +17,15 @@
     }
 
     try {
-      gameState.setMinting(true);
+      await gameState.mintCharacterAndItems();
 
-      const response = await mintCharacterAndItems(walletAdapter);
-
-      // TODO: Parse response to get character and item IDs
-      console.log('Mint response:', response);
-
-      // Trigger refetch of character data
+      // Trigger success callback
       if (onMintSuccess) {
         onMintSuccess();
       }
     } catch (error) {
       console.error('Failed to mint character:', error);
       // TODO: Show error toast/notification
-    } finally {
-      gameState.setMinting(false);
     }
   }
 </script>

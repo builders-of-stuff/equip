@@ -1,9 +1,7 @@
 <script lang="ts">
   import type { GameState } from '$lib/game';
-  import {
-    ConnectButton,
-    testnetWalletAdapter as walletAdapter
-  } from '@builders-of-stuff/svelte-sui-wallet-adapter';
+  import { ConnectButton } from '@builders-of-stuff/svelte-sui-wallet-adapter';
+  import { walletAdapter } from '$lib/wallet';
 </script>
 
 <nav class="border-b border-gray-700 bg-gray-900 px-6 py-4">

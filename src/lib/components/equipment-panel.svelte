@@ -2,8 +2,7 @@
   import { GameState, Item, ItemSlot } from '$lib/game';
   import EquipmentSlot from './equipment-slot.svelte';
   import { Button } from './ui/button/index.js';
-  import { testnetWalletAdapter as walletAdapter } from '@builders-of-stuff/svelte-sui-wallet-adapter';
-  import { equipCharacter } from '$lib/contracts/contract.tools.js';
+  import { walletAdapter } from '$lib/wallet';
   import { Loader2, Save, Trash } from 'lucide-svelte';
 
   interface Props {
@@ -27,17 +26,28 @@
     }
 
     try {
-      gameState.setSavingChanges(true);
-
-      const equippedItemIds = gameState.getEquippedItemIds();
-      await equipCharacter(walletAdapter, gameState.characterId, equippedItemIds);
-
-      gameState.markChangesSaved();
+      await gameState.saveEquipmentChanges();
     } catch (error) {
       console.error('Failed to save changes:', error);
       // TODO: Show error toast/notification
-    } finally {
-      gameState.setSavingChanges(false);
+    }
+  }
+
+  async function handleDeleteCharacter() {
+    if (!gameState.characterId || !walletAdapter?.currentAccount?.address) {
+      return;
+    }
+
+    try {
+      await gameState.deleteCharacter();
+
+      // Trigger success callback
+      if (onDeleteCharacter) {
+        onDeleteCharacter();
+      }
+    } catch (error) {
+      console.error('Failed to delete character:', error);
+      // TODO: Show error toast/notification
     }
   }
 </script>
@@ -118,22 +128,20 @@
       </Button>
 
       <!-- Delete Character Button -->
-      {#if onDeleteCharacter}
-        <Button
-          onclick={onDeleteCharacter}
-          disabled={gameState.isDeleting || gameState.isSavingChanges}
-          variant="destructive"
-          class="w-full"
-        >
-          {#if gameState.isDeleting}
-            <Loader2 class="mr-2 h-4 w-4 animate-spin" />
-            Deleting...
-          {:else}
-            <Trash class="mr-2 h-4 w-4" />
-            Delete Character
-          {/if}
-        </Button>
-      {/if}
+      <Button
+        onclick={handleDeleteCharacter}
+        disabled={gameState.isDeleting || gameState.isSavingChanges}
+        variant="destructive"
+        class="w-full"
+      >
+        {#if gameState.isDeleting}
+          <Loader2 class="mr-2 h-4 w-4 animate-spin" />
+          Deleting...
+        {:else}
+          <Trash class="mr-2 h-4 w-4" />
+          Delete Character
+        {/if}
+      </Button>
     </div>
   {/if}
 </div>

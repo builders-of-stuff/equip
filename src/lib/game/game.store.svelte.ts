@@ -9,6 +9,14 @@ import {
 } from './constants.js';
 import type { SuiCharacter, SuiItem } from '../contracts/contract.tools.js';
 import { suiItemToItem, suiItemsToItems } from '../contracts/utils.js';
+import {
+  mintCharacterAndItems,
+  equipCharacter,
+  deleteCharacter as deleteCharacterContract,
+  fetchCharacter,
+  fetchItems
+} from '../contracts/contract.tools.js';
+import { walletAdapter } from '../wallet/index.js';
 
 export interface EquippedItems {
   helmet?: Item;
@@ -302,5 +310,93 @@ export class GameState {
     this.#equipped = {};
     this.#items = [];
     this.#hasUnsavedChanges = false;
+  }
+
+  /**
+   * Mint a new character and starter items
+   */
+  async mintCharacterAndItems(): Promise<void> {
+    if (!walletAdapter?.currentAccount?.address) {
+      throw new Error('Wallet not connected');
+    }
+
+    this.setMinting(true);
+    try {
+      await mintCharacterAndItems();
+
+      // After successful mint, refetch character and items data
+      await this.refreshCharacterData();
+    } finally {
+      this.setMinting(false);
+    }
+  }
+
+  /**
+   * Save equipment changes to blockchain
+   */
+  async saveEquipmentChanges(): Promise<void> {
+    if (!this.#characterId || !walletAdapter?.currentAccount?.address) {
+      throw new Error('No character or wallet not connected');
+    }
+
+    this.setSavingChanges(true);
+    try {
+      const equippedItemIds = this.getEquippedItemIds();
+      await equipCharacter(this.#characterId, equippedItemIds);
+
+      this.markChangesSaved();
+
+      // Refresh data to get updated state from blockchain
+      await this.refreshCharacterData();
+    } finally {
+      this.setSavingChanges(false);
+    }
+  }
+
+  /**
+   * Delete character from blockchain
+   */
+  async deleteCharacter(): Promise<void> {
+    if (!this.#characterId || !walletAdapter?.currentAccount?.address) {
+      throw new Error('No character or wallet not connected');
+    }
+
+    this.setDeleting(true);
+    try {
+      await deleteCharacterContract(this.#characterId);
+      this.clearAllData();
+    } finally {
+      this.setDeleting(false);
+    }
+  }
+
+  /**
+   * Refresh character and items data from blockchain
+   */
+  async refreshCharacterData(): Promise<void> {
+    if (!walletAdapter?.currentAccount?.address) {
+      return;
+    }
+
+    this.setLoadingCharacter(true);
+    this.setLoadingItems(true);
+
+    try {
+      // Fetch character and items data from blockchain
+      const character = await fetchCharacter(
+        walletAdapter.suiClient,
+        walletAdapter.currentAccount.address
+      );
+      const items = await fetchItems(
+        walletAdapter.suiClient,
+        walletAdapter.currentAccount.address
+      );
+
+      this.loadCharacter(character);
+      this.loadItems(items);
+    } finally {
+      this.setLoadingCharacter(false);
+      this.setLoadingItems(false);
+    }
   }
 }

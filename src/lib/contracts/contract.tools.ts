@@ -1,5 +1,6 @@
 import { Transaction } from '@mysten/sui/transactions';
 import { PACKAGE_ID, CONTRACT_FUNCTIONS, OBJECT_TYPES } from './constants.js';
+import { walletAdapter } from '../wallet/index.js';
 
 export interface SuiItemStats {
   attack: number;
@@ -27,7 +28,7 @@ export interface SuiCharacter {
 /**
  * Mint a new character and starter items
  */
-export const mintCharacterAndItems = async (walletAdapter: any) => {
+export const mintCharacterAndItems = async () => {
   if (!walletAdapter?.currentAccount?.address) {
     throw new Error('Wallet not connected');
   }
@@ -174,7 +175,6 @@ export const fetchItems = async (
  * Equip items to character
  */
 export const equipCharacter = async (
-  walletAdapter: any,
   characterId: string,
   itemIds: string[]
 ) => {
@@ -216,7 +216,7 @@ export const equipCharacter = async (
 /**
  * Delete character
  */
-export const deleteCharacter = async (walletAdapter: any, characterId: string) => {
+export const deleteCharacter = async (characterId: string) => {
   if (!walletAdapter?.currentAccount?.address) {
     throw new Error('Wallet not connected');
   }

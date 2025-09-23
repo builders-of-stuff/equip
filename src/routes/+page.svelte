@@ -4,12 +4,7 @@
   import EquipmentPanel from '$lib/components/equipment-panel.svelte';
   import InventoryGrid from '$lib/components/inventory-grid.svelte';
   import EmptyCharacterState from '$lib/components/empty-character-state.svelte';
-  import { testnetWalletAdapter as walletAdapter } from '@builders-of-stuff/svelte-sui-wallet-adapter';
-  import {
-    fetchCharacter,
-    fetchItems,
-    deleteCharacter
-  } from '$lib/contracts/contract.tools.js';
+  import { walletAdapter } from '$lib/wallet';
   import { untrack } from 'svelte';
 
   const gameState = new GameState();
@@ -19,33 +14,13 @@
     if (!walletAdapter?.currentAccount?.address) return;
 
     try {
-      gameState.setLoadingCharacter(true);
-      gameState.setLoadingItems(true);
-
-      const character = await fetchCharacter(
-        walletAdapter.suiClient,
-        walletAdapter.currentAccount.address
-      );
-
-      console.log('Fetched character:', character);
-      gameState.loadCharacter(character);
-
-      const items = await fetchItems(
-        walletAdapter.suiClient,
-        walletAdapter.currentAccount.address
-      );
-
-      console.log('Fetched items:', items);
-      gameState.loadItems(items);
+      await gameState.refreshCharacterData();
 
       if (options.setInitialDataFlag) {
         hasCheckedInitialData = true;
       }
     } catch (error) {
       console.error('Failed to fetch blockchain data:', error);
-    } finally {
-      gameState.setLoadingCharacter(false);
-      gameState.setLoadingItems(false);
     }
   }
 
@@ -73,22 +48,11 @@
   });
 
   async function handleDeleteCharacter() {
-    if (!gameState.characterId || !walletAdapter?.currentAccount?.address) {
-      return;
-    }
-
     try {
-      gameState.setDeleting(true);
-
-      await deleteCharacter(walletAdapter, gameState.characterId);
-
-      // Clear local state
-      gameState.clearAllData();
+      await gameState.deleteCharacter();
     } catch (error) {
       console.error('Failed to delete character:', error);
       // TODO: Show error toast/notification
-    } finally {
-      gameState.setDeleting(false);
     }
   }
 </script>
