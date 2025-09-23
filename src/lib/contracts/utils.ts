@@ -219,4 +219,3 @@ export function parseItemsFromTxResponse(executedTx: any): SuiItem[] {
     return [];
   }
 }
-

@@ -325,7 +325,7 @@ export class GameState {
     try {
       const result: MintResult = await mintCharacterAndItems();
 
-      // Use the parsed data from the transaction response instead of refetching
+      // Use the already parsed character data (optimistic update)
       if (result.character && result.items) {
         this.loadCharacter(result.character);
         this.loadItems(result.items);
