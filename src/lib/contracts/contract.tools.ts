@@ -243,18 +243,18 @@ export const equipCharacter = async (characterId: string, itemIds: string[]) => 
   console.log('Equipping items:', itemIds, 'to character:', characterId);
 
   // Call equip_character function
-  const [returnItems] = tx.moveCall({
+  tx.moveCall({
     target: CONTRACT_FUNCTIONS.EQUIP_CHARACTER,
     arguments: [
-      tx.object(characterId),
+      tx.object(`${characterId}`),
       tx.makeMoveVec({
-        elements: itemIds.map((id: string) => tx.object(id))
+        elements: itemIds.map((id: string) => tx.object(`${id}`))
       })
     ]
   });
 
   // Transfer returned items back to user
-  tx.transferObjects([returnItems], walletAdapter.currentAccount.address);
+  // tx.transferObjects([returnItems], walletAdapter.currentAccount.address);
 
   try {
     const { bytes, signature } = await walletAdapter.signTransaction(tx as any, {});

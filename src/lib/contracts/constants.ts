@@ -1,8 +1,8 @@
 // Testnet
 export const PACKAGE_ID =
-  '0xff82eae587e358a1f9254d177c257509af00de1635036382139c2f5db87e5d93';
+  '0xf1c473a9f3e37981f0191d47819fb855f6ce4e1c821811d8bbcd3e4a55d99dff';
 export const UPGRADE_CAP =
-  '0x35962b0af2cf0e07e2134119cd7edcc2dd04767376d4f5dc163e1f49b771e3ce';
+  '0x13eea168a2dabc8046e2443ad4a16f0dde0a6c9d540b3aafa00139a065d328fc';
 
 // Item Type Constants (matching Move contract)
 export const IRON_HELMET = 0;

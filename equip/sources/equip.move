@@ -1,6 +1,7 @@
 module equip::equip;
 
 use sui::event;
+use sui::transfer;
 
 const IRON_HELMET: u64 = 0;
 const DRAGON_SCALE_HELMET: u64 = 1;
@@ -318,8 +319,8 @@ public fun delete_character(character: Character) {
 public fun equip_character(
     character: &mut Character,
     items: vector<Item>,
-    _ctx: &mut TxContext,
-): vector<Item> {
+    ctx: &mut TxContext,
+) {
     let mut return_items = vector::empty<Item>();
     let mut items = items;
 
@@ -399,7 +400,18 @@ public fun equip_character(
     // Destroy the now-empty items vector
     vector::destroy_empty(items);
 
-    return_items
+    // Transfer all return items back to the sender
+    let length = vector::length(&return_items);
+    let mut i = 0;
+    while (i < length) {
+        let item = vector::pop_back(&mut return_items);
+        // transferring here because no way to transfer dynamic vector with TS SDK
+        transfer::public_transfer(item, tx_context::sender(ctx));
+        i = i + 1;
+    };
+
+    // Destroy the now-empty return_items vector
+    vector::destroy_empty(return_items);
 }
 
 public fun destroy_items(mut items: vector<Item>) {
