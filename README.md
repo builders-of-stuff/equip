@@ -2,6 +2,9 @@
 
 Proof of concept / me playing around with Sui and SvelteKit.
 
+Video walkthrough:
+https://youtu.be/FDbZc6pYYgM?si=VzpKVUVS8RSfWRW1
+
 ## Features
 
 - Create characters and items onchain
